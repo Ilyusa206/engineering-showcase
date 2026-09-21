@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода.
  */
 
 type SpaceRole = "viewer" | "member" | "editor" | "admin" | "owner";
@@ -52,7 +52,7 @@ export async function requireSpaceAccess(
 
   const membership = await repository.findActive(spaceId, principal.userId);
 
-  // A missing membership is returned as 404 so callers cannot enumerate spaces.
+  // Возвращаем 404, чтобы по отсутствующей membership нельзя было перебирать spaces.
   if (!membership?.active) throw new AuthorizationError(404, "space_not_found");
   if (!accessByRole[membership.role].has(required)) {
     throw new AuthorizationError(403, "permission_denied");
@@ -61,6 +61,5 @@ export async function requireSpaceAccess(
   return membership;
 }
 
-// Important: a global tenant/family role is intentionally not accepted here.
-// Access must be proven for the exact space named by the request.
-
+// Глобальная tenant/family role намеренно не учитывается.
+// Доступ должен быть подтверждён для конкретного space из request.

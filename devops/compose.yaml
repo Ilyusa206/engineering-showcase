@@ -1,5 +1,5 @@
-# Sanitized reconstruction based on an implemented system.
-# Not verbatim production code.
+# Санитизированная реконструкция на основе реализованной системы.
+# Не является дословной копией production-кода.
 
 x-api-environment: &api-environment
   NODE_ENV: production
@@ -104,4 +104,3 @@ networks:
 volumes:
   postgres-data:
   redis-data:
-

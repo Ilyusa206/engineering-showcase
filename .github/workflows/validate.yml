@@ -1,4 +1,4 @@
-name: Validate showcase
+name: Проверка showcase
 
 on:
   push:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   verify:
+    name: Ссылки, структура, TypeScript и security
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code. All sample data is fictional.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода. Все данные вымышлены.
  */
 
 interface Department {

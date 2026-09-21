@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода.
  */
 
 interface Tokens {
@@ -67,7 +67,7 @@ export class SessionManager {
       await this.replace(next);
       return next;
     } catch (error) {
-      // A real client distinguishes terminal OAuth errors from transient network failures.
+      // Реальный client отличает terminal OAuth errors от временных сетевых сбоев.
       if (error instanceof Error && /invalid_(grant|token)/.test(error.message)) {
         await this.signOut();
       }
@@ -78,7 +78,6 @@ export class SessionManager {
   private async replace(tokens: Tokens): Promise<void> {
     await this.storage.save(tokens);
     this.tokens = tokens;
-    this.onTokenChanged(); // Recreate authenticated API/socket clients.
+    this.onTokenChanged(); // Пересоздаём authenticated API/socket clients.
   }
 }
-

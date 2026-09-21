@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода.
  */
 
 interface QueryCache {
@@ -66,7 +66,7 @@ export class RealtimeInvalidator {
     }
     if (event.spaceId !== this.spaceId || event.type === "connected") return;
 
-    // The event is an invalidation hint. Authorized HTTP queries remain authoritative.
+    // Event только инвалидирует cache; источником истины остаются authorized HTTP queries.
     await Promise.all([
       this.cache.invalidate(["dashboard", this.spaceId]),
       this.cache.invalidate(["transactions", this.spaceId]),
@@ -74,4 +74,3 @@ export class RealtimeInvalidator {
     ]);
   }
 }
-

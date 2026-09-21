@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода.
  */
 
 type EntryType = "income" | "expense" | "transfer";
@@ -71,4 +71,3 @@ export async function createLedgerEntry(
     return entry.id;
   });
 }
-

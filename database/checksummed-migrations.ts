@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода.
  */
 
 import { createHash } from "node:crypto";
@@ -33,7 +33,7 @@ export function migrationPlan(
   return discovered.map((item) => ({ ...item, checksum: checksum(item.sql) })).filter((item) => {
     const previous = appliedByName.get(item.filename);
     if (previous && previous !== item.checksum) {
-      throw new Error(`Applied migration changed: ${item.filename}`);
+      throw new Error(`Применённая migration была изменена: ${item.filename}`);
     }
     return !previous;
   });
@@ -59,7 +59,7 @@ export async function runMigrations(
 
     for (const item of migrationPlan(discovered, previous.rows)) {
       if (/^\s*(BEGIN|COMMIT)\s*;/im.test(item.sql)) {
-        throw new Error(`Migration controls its own transaction: ${item.filename}`);
+        throw new Error(`Migration самостоятельно управляет transaction: ${item.filename}`);
       }
       await db.query("BEGIN");
       try {
@@ -80,4 +80,3 @@ export async function runMigrations(
     await db.query("SELECT pg_advisory_unlock(hashtext($1))", [lockName]);
   }
 }
-

@@ -1,6 +1,6 @@
 /**
- * Sanitized reconstruction based on an implemented system.
- * Not verbatim production code.
+ * Санитизированная реконструкция на основе реализованной системы.
+ * Не является дословной копией production-кода.
  */
 
 interface SqlClient {
@@ -89,6 +89,6 @@ export async function publishBatch(db: SqlClient, queue: Queue): Promise<number>
   return published;
 }
 
-// If Redis is lost, clear published_at for jobs not represented in the queue
-// (or maintain an explicit delivery ledger) and run publishBatch again. Stable
-// job IDs make the projection retryable; PostgreSQL keeps the durable fact.
+// После потери Redis сбрасываем published_at у jobs, которых нет в очереди
+// (либо ведём отдельный delivery ledger), и повторяем publishBatch. Стабильные
+// job ID делают проекцию повторяемой; durable-факт остаётся в PostgreSQL.
