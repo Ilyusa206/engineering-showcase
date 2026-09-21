@@ -2,6 +2,15 @@
 
 Источник — приватная система. Здесь опубликованы только архитектурные доказательства и санитизированные описания.
 
+## Роль и граница доказательства
+
+| | |
+|---|---|
+| Моя роль | Архитектура и реализация backend, web/mobile-клиентов, интеграций, delivery и эксплуатационных процедур |
+| Статус системы | Основное ядро и ряд модулей приняты в production; более поздние CRM/HR/mobile revisions имеют отдельно указанные границы acceptance |
+| Реализовано лично | Перечисленные ниже API, auth/RBAC, realtime, migrations, интерфейсы, mobile session lifecycle и CI/CD |
+| Публичная граница | Исходный продукт закрыт; доступны runnable reconstruction, сфокусированные samples и проверяемое описание maturity |
+
 ## Задача
 
 Сотрудникам требовалось единое аутентифицированное рабочее пространство: справочник и профили, мессенджер, задачи, Service Desk, уведомления, onboarding, инфраструктурные self-service сценарии и настраиваемый desktop CRM. Система должна была иметь web- и Android-клиенты, интегрироваться с корпоративным контуром identity и проходить управляемый путь от исходного кода до production.
@@ -50,6 +59,10 @@ Backend построен как modular monolith с общими слоями au
 4. **Приёмка кода и проверка в рабочей среде фиксируются отдельно.** Merge в production branch не означает, что функция развёрнута и принята пользователями.
 5. **Mobile socket следует состоянию приложения.** Клиент отключается при sign-out, offline и background; смена token уничтожает старое соединение до reconnect.
 
+### Реальное изменение после проверки runtime
+
+Первоначально любой refresh failure очищал mobile session. Нестабильная сеть тем самым превращала временный сбой в принудительный logout. Исправление разделило terminal OAuth errors (`invalid_grant`, `invalid_token`) и transient network failures: только первые уничтожают сохранённую сессию. Отдельный test подтверждает, что при сетевой ошибке refresh token остаётся в secure storage. Это изменение вошло в accepted mobile runtime baseline.
+
 ## Надёжность, безопасность и тестирование
 
 - CI ищет распространённые credential signatures и запрещённые environment/build artifacts.
@@ -70,4 +83,9 @@ Backend построен как modular monolith с общими слоями au
 - OIDC/OAuth 2.0/PKCE, RBAC и server-side authorization.
 - Проектирование migrations, CI/CD, staging/production separation и evidence-based release process.
 
-Связанные примеры: [RBAC boundary](../../backend/rbac-boundary.ts), [migration runner](../../database/checksummed-migrations.ts), [mobile session manager](../../mobile/pkce-session-manager.ts).
+## Публичные артефакты
+
+- [Reference service](../../examples/reference-service/README.md) — real PostgreSQL, migrations, permission boundary и integration tests.
+- [Migration runner](../../database/checksummed-migrations.ts) — checksum history и advisory lock.
+- [Mobile session manager](../../mobile/pkce-session-manager.ts) — terminal/transient refresh boundary.
+- [CI workflow](../../.github/workflows/validate.yml) — standalone demo действительно собирается и тестируется.

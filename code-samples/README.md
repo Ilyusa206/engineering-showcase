@@ -2,6 +2,8 @@
 
 Это небольшие реконструкции паттернов, реализованных в исходных системах и пригодных для обсуждения на техническом интервью. Они не являются дословными production-файлами и не позволяют собрать закрытые продукты. Каждый пример намеренно сосредоточен на одном решении; окружающие слои validation, observability и integration tests показаны только там, где нужны для понимания паттерна.
 
+Связанный end-to-end путь с PostgreSQL и tests: [reference service](../examples/reference-service/README.md).
+
 | Пример | Инженерная идея |
 |---|---|
 | [RBAC boundary](../backend/rbac-boundary.ts) | Сначала authentication, затем authorization точного tenant/resource |

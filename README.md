@@ -1,57 +1,44 @@
 # Инженерное портфолио Ильи
 
-Я Илья — системный администратор по основной должности и разработчик, который ведёт прикладные системы от модели данных и backend API до клиентских приложений, поставки и эксплуатации. В зависимости от вакансии рассматриваю четыре отдельные специализации: **Full-stack**, **Backend**, **DevOps / Platform** и **System / Infrastructure**.
+Я системный администратор и разработчик на стыке software, platform и infrastructure. Проектирую backend и модели данных, делаю web/mobile-клиенты, настраиваю delivery и отвечаю за эксплуатационные границы: сеть, virtualization, storage, backup и recovery.
 
-Основной прикладной стек: **Node.js, TypeScript, Express, Fastify, React, Next.js, React Native / Expo, PostgreSQL, Redis, Socket.IO / WebSocket, Docker Compose и GitHub Actions**. В инфраструктурных задачах работаю с **Linux, Proxmox VE / PBS, TrueNAS, iSCSI, VLAN, VPN, мониторингом, backup и disaster recovery**.
+Целевые роли разделяю: **Full-stack**, **Backend**, **DevOps / Platform** и **System / Infrastructure**. Для конкретной вакансии релевантен свой набор кейсов, а не образ «один специалист делает всё».
 
-## Что открыть в первую очередь
+## Можно запустить
 
-| Кейс | Что именно он доказывает |
+[**Reference service: Fastify + PostgreSQL + integration tests**](examples/reference-service/README.md)
+
+Минимальный standalone demo проверяет связанные backend-паттерны на настоящей PostgreSQL:
+
+- checksum migrations и повторный migration run;
+- exact-space authorization и блокировку чужого resource;
+- идемпотентную mutation без дублей;
+- transactional outbox;
+- durable worker, deterministic job ID, retry и rollback side effects;
+- liveness/readiness.
+
+Проверка: `docker compose --profile test run --rm test`; ручной запуск: `docker compose up --build`. Тот же test suite выполняется в [GitHub Actions](.github/workflows/validate.yml).
+
+## Четыре основных кейса
+
+| Кейс | Что можно проверить |
 |---|---|
-| [Внутренняя платформа для сотрудников](cases/bic-hub/README.md) | Full-stack и mobile-разработка, Node.js/React/React Native, OIDC/RBAC, Socket.IO, PostgreSQL migrations, Docker и CI/CD |
-| [Коммерческий асинхронный сервис](cases/amorie/README.md) | Backend-проектирование: платежи, state machine, BullMQ workers, FFmpeg, идемпотентность, восстановление незавершённых задач |
-| [Мультитенантная система финансов и учёта](cases/monedo/README.md) | Fastify/Prisma, tenant isolation, атомарные финансовые и складские операции, WebSocket invalidation, security tests |
-| [Инфраструктура, backup и disaster recovery](cases/infrastructure/README.md) | Linux/DevOps и системная инженерия: VLAN, Proxmox, TrueNAS, iSCSI, проверка backup, restore drill, incident/change management |
+| [Внутренняя платформа для сотрудников](cases/bic-hub/README.md) | Node.js/React/React Native, OIDC/RBAC, Socket.IO, migrations, CI/CD; отдельно отмечены production baseline и поздние revisions |
+| [Коммерческий асинхронный сервис](cases/amorie/README.md) | Payment verification, PostgreSQL source of truth, BullMQ/FFmpeg workers, restart recovery; live telephony не заявляется запущенной |
+| [Мультитенантные финансы и учёт](cases/monedo/README.md) | Fastify/Prisma, exact-space permissions, атомарные операции, WebSocket invalidation и security tests; статус — alpha |
+| [Инфраструктура и DR](cases/infrastructure/README.md) | Proxmox/TrueNAS/iSCSI/VLAN, isolated restore drill и реальный cross-layer storage incident |
 
-Эти четыре кейса не означают «умею всё». Они показывают разные контуры одного опыта: разработку продукта, backend и данные, delivery/эксплуатацию, а также системную инфраструктуру. Для конкретной вакансии релевантен соответствующий набор доказательств.
+В каждом кейсе указаны моя роль, статус системы, личная реализация, граница публичного доказательства и ссылки на артефакты.
 
-## Почему здесь нет исходников закрытых продуктов
+## Остальные проверяемые материалы
 
-Это отобранное публичное портфолио, а не выгрузка приватных репозиториев. Код в каталогах с примерами — **санитизированные реконструкции на основе реально реализованных решений**, а не дословные production-файлы. В них сохранён инженерный паттерн, но заменены названия, идентификаторы, схемы и предметная логика. Не публикуются credentials, внутренние адреса и topology, персональные данные, коммерческие условия и код, по которому можно восстановить закрытый продукт.
+- [Сфокусированные code samples](code-samples/README.md) — migrations, RBAC, ledger, mobile session/realtime и Compose isolation.
+- [Runbook изолированного восстановления](infrastructure/backup-restore-runbook.md).
+- [Санитизированный разбор storage incident](infrastructure/incident-analysis.md).
+- [WordPress migration pilot](cases/web-platform/README.md), [commercial web](cases/commercial-web/README.md) и [LiveKit LAN prototype](cases/realtime-meetings/README.md).
 
-Правила публикации описаны в [SECURITY.md](SECURITY.md), а происхождение каждого материала — в [SOURCE-MAP.md](SOURCE-MAP.md).
+## Почему опубликованы реконструкции
 
-## Карта компетенций
+Исходные продукты и инфраструктурная документация закрыты. Публичные примеры сохраняют реализованный инженерный паттерн, но заменяют предметную область, identifiers и окружение. Здесь нет credentials, внутренних адресов и topology, персональных данных, коммерческих условий или кода, по которому можно восстановить приватный продукт.
 
-| Направление | Публичные доказательства |
-|---|---|
-| Backend | REST API, границы авторизации, идемпотентность, очереди, state machine, транзакционные сценарии |
-| Web | React/Next.js-интерфейсы и адаптивные data-driven компоненты |
-| Mobile | React Native/Expo, PKCE session lifecycle, secure storage, reconnect и cache invalidation |
-| Data | PostgreSQL, Prisma, SQL migrations, constraints, checksums, audit trail |
-| Realtime | Socket.IO messaging, WebSocket invalidation, presence events, reconnect lifecycle |
-| Identity | Keycloak/OIDC, OAuth 2.0 Authorization Code + PKCE, JWT, RBAC, tenant permissions |
-| Delivery | Docker/Compose, Nginx, GitHub Actions, разделение staging/production, rollback controls |
-| Infrastructure | Linux, Proxmox VE/PBS, TrueNAS, iSCSI, VLAN, VPN, мониторинг, backup и DR |
-| Operations | Runbook’и, release baseline, acceptance evidence, incident analysis и change management |
-
-## Остальные кейсы
-
-- [Платформа миграции WordPress](cases/web-platform/README.md) — контролируемый перенос legacy-сайтов без наследования устаревшего runtime.
-- [Коммерческие web-интерфейсы](cases/commercial-web/README.md) — адаптивные компоненты на HTML/CSS/JavaScript внутри визуального конструктора.
-- [Self-hosted realtime-встречи](cases/realtime-meetings/README.md) — проверенный LAN prototype на LiveKit/WebRTC с честно зафиксированными границами готовности.
-
-## Короткие примеры кода
-
-- [RBAC и tenant boundary](backend/rbac-boundary.ts)
-- [Recoverable outbox](backend/recoverable-outbox.ts)
-- [Migration runner с checksums](database/checksummed-migrations.ts)
-- [Атомарная операция ledger](database/atomic-ledger.ts)
-- [Mobile PKCE session manager](mobile/pkce-session-manager.ts)
-- [Realtime cache invalidation](mobile/realtime-invalidation.ts)
-- [Data-driven directory](frontend/data-driven-directory.ts)
-- [Изолированный Compose stack](devops/compose.yaml)
-- [CI-проверка портфолио](.github/workflows/validate.yml)
-- [Runbook изолированного восстановления](infrastructure/backup-restore-runbook.md)
-
-Дополнительно: [обо мне и инженерном подходе](ABOUT.md), [стек с доказательствами](STACK.md), [архитектурные границы](architecture/system-boundaries.md) и [стратегия верификации](testing/verification-strategy.md).
+[Политика публикации](SECURITY.md) · [Карта источников](SOURCE-MAP.md) · [Стек и доказательства](STACK.md) · [Обо мне](ABOUT.md)

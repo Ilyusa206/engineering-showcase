@@ -2,6 +2,15 @@
 
 Кейс полностью санитизирован: названия, адреса, площадки, inventory, capacity и точная topology исключены.
 
+## Роль и граница доказательства
+
+| | |
+|---|---|
+| Моя роль | Проектирование, развёртывание и эксплуатация сети, virtualization/storage, backup и operational documentation |
+| Статус системы | Production infrastructure; public case не раскрывает точную topology и inventory |
+| Реализовано лично | VLAN/routing/VPN, Proxmox VE/PBS, TrueNAS/iSCSI, monitoring, restore drill, incident/change procedures |
+| Публичная граница | Доступны санитизированные runbook и incident analysis; фактические commands, IP, VM IDs и capacity удалены |
+
 ## Задача
 
 Растущей multi-site среде требовались согласованные сеть, виртуализация и storage, централизованная identity, monitoring, проверяемые backups и эксплуатационная документация, пригодная для реального incident, а не только для описания идеального состояния.
@@ -46,6 +55,10 @@ flowchart TD
 4. **«Неизвестно» — допустимое документированное состояние.** Отсутствующие RPO/RTO, backup scope или restore evidence становятся отслеживаемым gap, а не выдуманной гарантией.
 5. **Сначала минимальное обратимое изменение.** Incident не оправдывает одновременное изменение сети, storage и приложений.
 
+### Реальный incident и corrective change
+
+Несколько VM оставались `running`, но guest I/O остановился. Healthy ZFS pool и активная iSCSI session сначала выглядели как признаки исправного storage. Сопоставление SCST allocation errors с initiator timeouts показало отказ именно в request path. Вместо одновременной перестройки storage/network был введён один обратимый ARC limit, освобождающий memory headroom для kernel/SCST. Проверка подтвердила новое значение limit, рост доступной памяти, прекращение новых allocation errors за окно наблюдения и восстановление зависимых путей. Полная первопричина kernel allocation честно осталась недоказанной из-за отсутствия memory snapshot в момент аварии.
+
 ## Надёжность, безопасность и тестирование
 
 - Проверка backup включает результат job, соблюдение retention, capacity datastore и запланированную verification.
@@ -64,4 +77,7 @@ flowchart TD
 - Cross-layer incident diagnosis и evidence-based root-cause analysis.
 - Проектирование runbook, change management и operational documentation.
 
-Связанные документы: [runbook backup/restore](../../infrastructure/backup-restore-runbook.md), [санитизированный incident analysis](../../infrastructure/incident-analysis.md).
+## Публичные артефакты
+
+- [Runbook backup/restore](../../infrastructure/backup-restore-runbook.md) — порядок isolated restore, stop conditions и evidence record.
+- [Incident analysis](../../infrastructure/incident-analysis.md) — evidence chain, corrective change и граница доказанной root cause.

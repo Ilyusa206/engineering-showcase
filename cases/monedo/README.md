@@ -2,6 +2,15 @@
 
 Источник — приватный личный продукт. Финансовые данные пользователей и deployment secrets не публикуются.
 
+## Роль и граница доказательства
+
+| | |
+|---|---|
+| Моя роль | Архитектура и реализация TypeScript monorepo: Fastify API, Prisma/PostgreSQL и React Native/Expo client |
+| Статус системы | Опубликован alpha baseline; inventory/production развивался последующими feature revisions и не называется зрелым production |
+| Реализовано лично | Модели данных, permission service, атомарные financial/inventory operations, sessions, WebSocket invalidation и mobile flows |
+| Публичная граница | User finance data и полный domain code закрыты; tenant/idempotency path воспроизведён в минимальном runnable service |
+
 ## Задача
 
 Одно приложение должно было поддерживать личные, совместные и небольшие бизнес-финансы без ослабления tenant isolation и финансовой корректности. Последующий бизнес-модуль добавил каталог, точки хранения, производство, перемещения, продажи, списания, оценку остатков и атомарную связь физической продажи с финансовым доходом.
@@ -50,6 +59,10 @@ flowchart TD
 4. **Realtime передаёт invalidation, а не готовое состояние.** Event сообщает, что изменилось, после чего клиент выполняет authorized API query.
 5. **Одноразовый invitation обеспечивается атомарно.** Код возвращается открытым текстом один раз, хранится как hash, имеет срок действия и не допускает replay.
 
+### Trade-off: `Family` не стала неявным пропуском во все `Space`
+
+Было бы проще проверять только membership в верхнеуровневом tenant, но тогда доступ к одному совместному контуру мог открыть другой. Permission service проверяет активную membership именно в `spaceId` из request. Integration/E2E suite использует двух пользователей и outsider для проверки permissions и IDOR; публичный reference service повторяет эту границу на вымышленных данных.
+
 ## Надёжность, безопасность и тестирование
 
 - CI выполняет Prisma validation/deploy, lint, typecheck, unit tests, build и проверки с PostgreSQL.
@@ -68,4 +81,8 @@ flowchart TD
 - Моделирование finance/inventory domain и атомарные операции.
 - WebSocket-driven cache invalidation при API как source of truth.
 
-Связанные примеры: [atomic ledger](../../database/atomic-ledger.ts), [tenant RBAC](../../backend/rbac-boundary.ts), [realtime invalidation](../../mobile/realtime-invalidation.ts).
+## Публичные артефакты
+
+- [Reference service](../../examples/reference-service/README.md) — запускаемая exact-space boundary, idempotency и PostgreSQL integration tests.
+- [Atomic ledger](../../database/atomic-ledger.ts) — одна transaction для resource, balance, audit и idempotency record.
+- [Realtime invalidation](../../mobile/realtime-invalidation.ts) — event инвалидирует cache, API остаётся источником истины.

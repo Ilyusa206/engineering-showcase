@@ -2,6 +2,15 @@
 
 Источник — приватная система. Product-specific данные и конфигурация внешнего provider не публикуются.
 
+## Роль и граница доказательства
+
+| | |
+|---|---|
+| Моя роль | Full-stack реализация сервиса, схемы PostgreSQL, payment flow, фоновые workers и production deployment |
+| Статус системы | Order/payment flow работает в коммерческом сервисе; live telephony не прошла provider acceptance и не заявляется запущенной |
+| Реализовано лично | React/TypeScript frontend, Node.js API, migrations, payment verification, scheduling/recovery, audio processing и security controls |
+| Публичная граница | Provider configuration, реальные orders и пользовательские данные исключены; worker pattern показан отдельным runnable demo |
+
 ## Задача
 
 Пользовательский сервис должен был принимать заказы и платежи, создавать один из нескольких цифровых продуктов, планировать будущую работу, обрабатывать загруженные аудиофайлы и восстанавливать незавершённые фоновые задачи после перезапуска процесса или host.
@@ -52,6 +61,10 @@ PostgreSQL хранит авторитетное состояние заказо
 4. **Восстановление начинается с durable state.** Workers находят pending/stale записи и заново наполняют BullMQ; очередь не используется как database.
 5. **Непринятая интеграция выключена по умолчанию.** Mock telephony не может выполнять оплаченные production calls, реальный call module остаётся выключенным до acceptance.
 
+### Trade-off: Redis выполняет работу, PostgreSQL хранит обязательство
+
+BullMQ удобен для retries и concurrency, но содержимое Redis не считается доказательством, что оплаченная работа существует. Состояние и attempts сохраняются в PostgreSQL; scheduler и reconciliation заново создают отсутствующие jobs после restart. Цена решения — дополнительная сверка durable state и queue state. Выигрыш — потеря очереди задерживает обработку, а не стирает обязательство перед пользователем.
+
 ## Надёжность, безопасность и тестирование
 
 - Автоматизированные tests покрывают state machine, cryptography, scheduling, расчёт стоимости, repositories, routes и поведение платежей.
@@ -71,4 +84,8 @@ PostgreSQL хранит авторитетное состояние заказо
 - Idempotency, state machines, recovery, FFmpeg processing, encryption и rate limiting.
 - Production-oriented Docker deployment, backup, restore и rollback.
 
-Связанный пример: [recoverable outbox](../../backend/recoverable-outbox.ts).
+## Публичные артефакты
+
+- [Reference service](../../examples/reference-service/README.md) — транзакционная запись события, durable worker, retry и проверка rollback side effects.
+- [Recoverable outbox](../../backend/recoverable-outbox.ts) — сфокусированный queue projection pattern.
+- [Compose isolation](../../devops/compose.yaml) — непубличные PostgreSQL/Redis и migration gate перед API.

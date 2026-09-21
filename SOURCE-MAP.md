@@ -11,6 +11,7 @@
 | [Платформа миграции WordPress](cases/web-platform/README.md) | `webstaging` | Санитизированная методика миграции | Domains, hosting accounts, paths, credentials, DNS records и клиентский контент |
 | [Коммерческие web-интерфейсы](cases/commercial-web/README.md) | `vetclinic-site` | Обобщённая реконструкция | Имена сотрудников, asset URLs, клиентский контент и полный переданный код |
 | [Realtime-встречи](cases/realtime-meetings/README.md) | Реализация в рабочей ветке `bic-meetings` | Архитектура и подтверждённая граница prototype | Внутренний DNS, VM identity и специфичная для работодателя port exposure policy |
+| [Reference service](examples/reference-service/README.md) | Совместимые паттерны из `bic-hub`, `family-finance`, `Amorie` и notification foundation | Новая standalone-реконструкция с real PostgreSQL и integration tests | Исходные schemas, domain entities, business logic, endpoints и provider configuration |
 | [Примеры кода](code-samples/README.md) | Паттерны, подтверждённые перечисленными выше источниками | Небольшие санитизированные реконструкции | Proprietary naming и product-complete logic |
 
 Ссылка на каталог примеров проверяется относительно корня репозитория: [code-samples/README.md](code-samples/README.md). Ссылки внутри этого каталога разрешаются относительно `code-samples/` и ведут к фактическим файлам в `backend/`, `database/`, `mobile/`, `frontend/` и `devops/`.

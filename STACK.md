@@ -18,6 +18,10 @@
 | Восстановление | Backup verification, isolated restore, порядок DR по зависимостям | [restore runbook](infrastructure/backup-restore-runbook.md) |
 | Web-платформы | Nginx, PHP, MariaDB, WordPress migration и cutover | [кейс миграции](cases/web-platform/README.md) |
 
+## Исполняемое доказательство
+
+[Reference service](examples/reference-service/README.md) связывает Fastify, PostgreSQL migrations, exact-space authorization, idempotency, transactional outbox, worker retry и integration tests в одном локально запускаемом примере. Это наиболее прямой способ проверить backend/data часть портфолио без доступа к приватным продуктам.
+
 ## Границы утверждений
 
 - LiveKit/WebRTC подтверждён как проверенный LAN technical prototype, а не production-сервис видеоконференций.
