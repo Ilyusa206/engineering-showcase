@@ -1,36 +1,35 @@
-# Verification Strategy
+# Стратегия верификации
 
-The source systems use layered verification because a passing unit test does not prove migrations, containers, mobile builds, or a deployed business path.
+В исходных системах применяется несколько уровней проверки: успешный unit test сам по себе не доказывает корректность migrations, контейнеров, mobile build или развёрнутого бизнес-сценария.
 
-| Layer | What it proves | Example |
+| Уровень | Что он подтверждает | Пример |
 |---|---|---|
-| Static | Syntax, types, formatting, configuration shape | TypeScript typecheck, Expo config inspection |
-| Unit | Local invariants and state transitions | permission matrix, state machine, token refresh |
-| Integration | Database and adapter behavior | migrations, row locks, payment verification, repository queries |
-| E2E | User-visible multi-component flow | multi-user tenant isolation, browser CRM workflow |
-| Build | Reproducible deployable artifact | backend/frontend images, Android export |
-| Runtime acceptance | Actual environment behavior | OIDC login, WebSocket path, background notification |
-| Recovery acceptance | Failure and restoration path | Redis job reconstruction, isolated VM restore |
+| Static | Синтаксис, типы, формат и форму конфигурации | TypeScript typecheck, проверка Expo config |
+| Unit | Локальные инварианты и переходы состояния | permission matrix, state machine, token refresh |
+| Integration | Поведение database и adapters | migrations, row locks, payment verification, repository queries |
+| E2E | Видимый пользователю многокомпонентный сценарий | multi-user tenant isolation, browser CRM workflow |
+| Build | Воспроизводимый deployable artifact | backend/frontend images, Android export |
+| Runtime acceptance | Поведение в реальной среде | OIDC login, WebSocket path, background notification |
+| Recovery acceptance | Отказ и восстановление | восстановление Redis jobs, isolated VM restore |
 
-## High-value test patterns
+## Наиболее ценные сценарии
 
-- Apply all migrations to a clean database, then run the migration command again.
-- Exercise two users plus an outsider to detect IDOR and tenant-boundary mistakes.
-- Replay invitations, webhooks, and idempotency keys.
-- Kill/restart workers with pending jobs and verify recovery from PostgreSQL.
-- Test mobile network, background/foreground, token refresh, and socket reconnection as one lifecycle.
-- Verify both rollback commands and rollback decision triggers before production change.
-- Tie runtime acceptance to an exact source commit and artifact checksum.
+- Применить все migrations к чистой database, затем повторно запустить migration command.
+- Проверить двух пользователей и outsider, чтобы обнаружить IDOR и ошибки tenant boundary.
+- Повторно отправить invitations, webhooks и idempotency keys.
+- Остановить worker при незавершённых jobs и проверить восстановление из PostgreSQL.
+- Проверить mobile network lifecycle, background/foreground, token refresh и socket reconnect как единый сценарий.
+- До production change проверить не только rollback command, но и критерии, при которых rollback обязателен.
+- Связать runtime acceptance с точным commit и checksum артефакта.
 
-## Evidence boundary
+## Граница доказательств
 
-The repository distinguishes:
+Репозиторий различает пять состояний:
 
-- implemented in source;
-- automatically verified;
-- deployable;
-- deployed;
-- accepted at runtime.
+1. реализовано в source;
+2. прошло автоматическую проверку;
+3. может быть собрано и развёрнуто;
+4. развёрнуто;
+5. принято в runtime.
 
-These are related but not interchangeable states.
-
+Эти состояния связаны, но не взаимозаменяемы.

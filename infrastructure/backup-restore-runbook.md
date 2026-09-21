@@ -1,50 +1,50 @@
-# Backup and Isolated Restore Runbook
+# Runbook: backup и изолированное восстановление VM
 
-Sanitized reconstruction based on an implemented and exercised infrastructure procedure.
+Санитизированная реконструкция реально выполненной и проверенной инфраструктурной процедуры.
 
-## Purpose
+## Цель
 
-Prove that a virtual-machine backup can be read, restored to a different target, and booted without creating an identity or network conflict with production.
+Доказать, что backup виртуальной машины читается, восстанавливается на отдельную цель и загружается без конфликта identity или сети с production.
 
-## Preconditions
+## Предварительные условия
 
-- An incident/change owner is named.
-- The source VM and chosen restore point are recorded.
-- Backup verification is successful and target storage has sufficient capacity.
-- A new temporary VM identifier is reserved.
-- The restore network is isolated from production.
-- Application owners understand that infrastructure boot does not prove application consistency.
+- Назначен ответственный за change/incident.
+- Зафиксированы исходная VM и выбранный restore point.
+- Backup verification успешна, на target storage достаточно места.
+- Зарезервирован новый временный VM identifier.
+- Сеть восстановления изолирована от production.
+- Владельцы приложения понимают: загрузка VM не доказывает application consistency.
 
-## Procedure
+## Процедура
 
-1. Record backup timestamp, source, target storage, expected disk count, and expected VM configuration.
-2. Restore into a new temporary VM identity; never overwrite production as the first restore action.
-3. Generate unique virtual hardware identifiers where supported.
-4. Disable or disconnect every virtual NIC before first boot.
-5. Compare source and restored configuration: CPU, memory, disks, firmware, boot order, and controllers.
-6. Start the restored VM in isolation.
-7. Verify hypervisor state, console boot, storage I/O, and guest telemetry where available.
-8. Perform application-specific checks using an isolated network or console.
-9. Record what was proved and what was not proved.
-10. Stop and remove the temporary VM after evidence is captured, unless it becomes an approved recovery candidate.
+1. Зафиксировать timestamp backup, источник, target storage, ожидаемое число дисков и конфигурацию VM.
+2. Восстановить backup под новым временным identity; первым действием никогда не перезаписывать production VM.
+3. Сгенерировать уникальные identifiers виртуального оборудования, где это поддерживается.
+4. Отключить все virtual NIC до первого запуска.
+5. Сравнить исходную и восстановленную конфигурации: CPU, memory, disks, firmware, boot order и controllers.
+6. Запустить восстановленную VM в изоляции.
+7. Проверить состояние hypervisor, загрузку через console, storage I/O и guest telemetry, если она доступна.
+8. Выполнить application-specific checks через изолированную сеть или console.
+9. Записать, что проверка доказала и какие границы остались непроверенными.
+10. После фиксации evidence остановить и удалить временную VM, если она не утверждена как recovery candidate.
 
-## Success criteria
+## Критерии успеха
 
-- Backup snapshot is readable.
-- VM configuration and every expected disk are restored.
-- Restored storage supports read/write I/O.
-- Guest OS reaches an expected boot state.
-- No duplicate hostname, address, directory identity, or application writer reaches production.
+- Backup snapshot читается.
+- Конфигурация VM и все ожидаемые диски восстановлены.
+- Восстановленное storage поддерживает read/write I/O.
+- Guest OS достигает ожидаемого состояния загрузки.
+- В production не появляется дублирующий hostname, address, directory identity или application writer.
 
-## Stop conditions
+## Условия остановки
 
-- Target capacity is uncertain.
-- Restore would initialize or overwrite an existing volume.
-- Network isolation cannot be confirmed.
-- Backup chain reports corruption or missing chunks.
-- Two stateful copies could write to the same production data.
+- Не подтверждена свободная capacity на target.
+- Restore может инициализировать или перезаписать существующий volume.
+- Невозможно подтвердить network isolation.
+- Backup chain сообщает о corruption или отсутствующих chunks.
+- Две stateful-копии могут одновременно писать в одни production data.
 
-## Evidence record
+## Форма фиксации результата
 
 ```text
 Change/incident ID:
@@ -60,7 +60,6 @@ Unproven boundaries:
 Cleanup result:
 ```
 
-## Interpretation
+## Интерпретация
 
-An isolated boot proves the infrastructure path: backup job → stored snapshot → read → restore → boot. It does not prove database transaction consistency, directory recovery semantics, or the application's recovery point. Those need workload-specific tests.
-
+Изолированная загрузка подтверждает инфраструктурную цепочку: backup job → stored snapshot → read → restore → boot. Она не доказывает transaction consistency database, семантику восстановления directory или application recovery point — для этого нужны отдельные workload-specific tests.

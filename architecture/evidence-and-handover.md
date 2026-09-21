@@ -1,37 +1,37 @@
-# Evidence, Maturity, and Handover
+# Доказательства зрелости и передача системы
 
-This framework was distilled from a real product-passport and handover workstream. Commercial figures, legal strategy, private management documents, and negotiation details are intentionally excluded.
+Методика основана на реальной работе над product passport и handover. Коммерческие суммы, юридическая стратегия, внутренние управленческие документы и детали переговоров намеренно исключены.
 
-## Maturity axes
+## Оси зрелости
 
-A module is assessed separately on:
+Модуль оценивается независимо по нескольким осям:
 
-| Axis | Question |
+| Ось | Проверочный вопрос |
 |---|---|
-| Implementation | Does meaningful end-to-end source exist? |
-| Integration | Is it connected to real identity, data, and neighboring modules? |
-| Verification | Do automated checks cover important behavior? |
-| Deployability | Can an exact revision produce a runnable artifact? |
-| Deployment evidence | Is the exact revision known to be installed? |
-| Runtime acceptance | Was the real user/business path exercised? |
-| Documentation | Can another engineer operate and change it safely? |
+| Реализация | Есть ли содержательный end-to-end код? |
+| Интеграция | Подключён ли модуль к реальным identity, данным и соседним компонентам? |
+| Верификация | Покрывают ли автоматические проверки критичное поведение? |
+| Deployability | Можно ли из точной revision получить запускаемый artifact? |
+| Deployment evidence | Известно ли, что именно эта revision установлена в среде? |
+| Runtime acceptance | Пройден ли реальный пользовательский или бизнес-сценарий? |
+| Документация | Сможет ли другой инженер безопасно эксплуатировать и изменять модуль? |
 
-This prevents two common errors: calling a branch “production” because it merged, and calling an operational feature “absent” because its newest delta lacks separate runtime proof.
+Такое разделение не позволяет назвать ветку production только потому, что её merge завершён. И наоборот, рабочая функция не считается отсутствующей лишь потому, что для её последнего изменения нет отдельного runtime acceptance.
 
-## Handover checklist
+## Checklist передачи
 
-- exact repositories, branches, commit SHAs, and artifact hashes;
-- source/module inventory and explicit excluded scope;
-- dependency and open-source license register;
-- schema migrations and data/export boundaries;
-- staging/production topology at a safe disclosure level;
-- build, deploy, rollback, backup, and restore procedures;
-- mobile release and update process where applicable;
-- known limitations, technical debt, and unresolved evidence;
-- objective acceptance criteria;
-- access ownership transfer without placing credentials in Git;
-- bounded transition/support responsibilities.
+- точные repositories, branches, commit SHA и hashes артефактов;
+- перечень модулей и явно исключённый scope;
+- зависимости и реестр open-source licenses;
+- schema migrations и границы data/export;
+- staging/production topology на безопасном уровне раскрытия;
+- процедуры build, deploy, rollback, backup и restore;
+- процесс mobile release/update, если он применим;
+- известные ограничения, technical debt и пробелы в доказательствах;
+- объективные acceptance criteria;
+- передача владения доступами без размещения credentials в Git;
+- ограниченные по сроку и объёму обязанности transition/support.
 
-## Operational value
+## Практическая ценность
 
-The framework turns documentation into a control: a release can be accepted against an exact baseline, a handover cannot silently include an unimplemented module, and unknown runtime facts remain visible until verified.
+Документация становится механизмом контроля: релиз принимается относительно точного baseline, handover не может незаметно включить нереализованный модуль, а неизвестные runtime-факты остаются видимыми до проверки.

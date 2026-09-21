@@ -1,68 +1,67 @@
-# Infrastructure, Backup, and Disaster Recovery
+# Инфраструктура, backup и disaster recovery
 
-This case is fully sanitized. Names, addresses, site identities, inventory, capacities, and exact topology are omitted.
+Кейс полностью санитизирован: названия, адреса, площадки, inventory, capacity и точная topology исключены.
 
-# Problem
+## Задача
 
-A growing multi-site environment needed a coherent network, virtualization and storage platform, centralized identity, monitored services, verified backups, and operational documentation that could support real incidents rather than only describe an ideal state.
+Растущей multi-site среде требовалась согласованная сеть, платформа виртуализации и storage, централизованная identity, monitoring, проверяемые backups и эксплуатационная документация, пригодная для реального incident, а не только для описания идеального состояния.
 
-# Constraints
+## Ограничения
 
-- The environment contained legacy dependencies and single points of failure.
-- Storage for virtual machines crossed the compute/storage network through iSCSI.
-- Backup infrastructure also carried other operational responsibilities.
-- Remote changes needed alternate access and explicit rollback.
-- Existing unknowns could not be silently guessed during documentation.
+- В среде были legacy-зависимости и single points of failure.
+- Storage виртуальных машин передавался между compute и storage через iSCSI.
+- Backup infrastructure выполняла и другие операционные функции.
+- Remote changes требовали alternate access и явно определённого rollback.
+- Пробелы в сведениях нельзя было незаметно заполнять предположениями.
 
-# Architecture / approach
+## Архитектура и подход
 
 ```mermaid
 flowchart TD
-    SITES["Office and remote sites"] --> CORE["Routed core / VPN hub"]
-    CORE --> USERS["User and service VLANs"]
+    SITES["Офисы и удалённые площадки"] --> CORE["Routed core / VPN hub"]
+    CORE --> USERS["Пользовательские и service VLAN"]
     CORE --> PVE["Proxmox VE"]
-    PVE -->|iSCSI storage network| NAS["Primary storage"]
+    PVE -->|iSCSI storage network| NAS["Основное storage"]
     PVE -->|VM backups| PBS["Proxmox Backup Server"]
     PVE --> SVC["Identity, proxy, apps, monitoring"]
 ```
 
-The design separates user, server, management, guest, voice, CCTV, and storage/backup traffic. The documentation links architecture, inventory references, runbooks, troubleshooting, change records, and technical debt while keeping secrets and device exports outside Git.
+Архитектура разделяет user, server, management, guest, voice, CCTV и storage/backup traffic. Документация связывает architecture, inventory references, runbook’и, troubleshooting, change records и technical debt, при этом secrets и device exports хранятся вне Git.
 
-# My implementation
+## Что я реализовал
 
-- Designed and built the physical/server environment, switching, routing, VLANs, firewall/NAT, Wi-Fi separation, and site-to-site VPN connectivity.
-- Deployed and operated Proxmox VE, Proxmox Backup Server, TrueNAS, iSCSI-backed storage, Active Directory/DNS, Linux services, containers, and monitoring.
-- Established backup retention, verification, and an isolated end-to-end VM restore drill.
-- Wrote dependency-ordered disaster recovery procedures for compute, storage, identity, network, and application recovery.
-- Introduced change cards with pre-checks, success criteria, rollback triggers, post-checks, and documentation updates.
-- Documented incident severity, first-response workflow, evidence preservation, recovery verification, and follow-up.
-- Investigated a storage degradation incident across hypervisor, iSCSI, ZFS, kernel memory, switching, and dependent application layers.
+- Спроектировал и развернул server/physical environment, switching, routing, VLAN, firewall/NAT, разделение Wi-Fi и site-to-site VPN.
+- Развернул и сопровождал Proxmox VE, Proxmox Backup Server, TrueNAS, iSCSI storage, Active Directory/DNS, Linux services, containers и monitoring.
+- Настроил backup retention, verification и изолированную end-to-end проверку восстановления VM.
+- Описал dependency-ordered disaster recovery для compute, storage, identity, network и applications.
+- Ввёл change cards с pre-checks, success criteria, rollback triggers, post-checks и обязательным обновлением документации.
+- Формализовал incident severity, first response, сохранение evidence, проверку recovery и follow-up.
+- Провёл cross-layer анализ storage degradation: hypervisor, iSCSI, ZFS, kernel memory, switching и зависимые application layers.
 
-# Interesting engineering decisions
+## Ключевые инженерные решения
 
-1. **A running VM is not proof of healthy storage.** Guest I/O, kernel timeouts, and business functions are checked independently of hypervisor state.
-2. **Restore begins isolated.** A backup is restored to a new identity with its network disconnected before boot and application checks.
-3. **Dependencies determine recovery order.** Network/storage precede virtual machines; identity/DNS and databases precede dependent applications.
-4. **Unknown is a valid documented state.** Missing RPO/RTO, backup scope, or restore proof becomes a tracked gap rather than an invented assurance.
-5. **Minimal reversible change first.** Incidents do not justify simultaneous changes across network, storage, and application layers.
+1. **Запущенная VM не доказывает здоровье storage.** Guest I/O, kernel timeouts и бизнес-функции проверяются независимо от состояния hypervisor.
+2. **Restore начинается в изоляции.** Backup восстанавливается с новым identity и отключённой сетью до первого boot и application checks.
+3. **Recovery order задаётся зависимостями.** Network/storage предшествуют VM, identity/DNS и databases — зависимым applications.
+4. **«Неизвестно» — допустимое документированное состояние.** Отсутствующие RPO/RTO, backup scope или restore evidence становятся отслеживаемым gap, а не выдуманной гарантией.
+5. **Сначала минимальное обратимое изменение.** Incident не оправдывает одновременное изменение network, storage и application layers.
 
-# Reliability / security / testing
+## Надёжность, безопасность и тестирование
 
-- Backup checks include job result, retention behavior, datastore capacity, and scheduled verification.
-- The restore drill proves the chain from backup job through snapshot read, disk/config restore, isolated boot, and guest activity.
-- Stateful services still require separate application-consistency tests; infrastructure restore is not misrepresented as database consistency proof.
-- Commands are classified as read-only or configuration-changing, and sensitive exports are explicitly excluded from documentation.
+- Backup checks включают результат job, retention behavior, datastore capacity и scheduled verification.
+- Restore drill проверяет цепочку от backup job и чтения snapshot до восстановления disks/config, isolated boot и guest activity.
+- Для stateful services отдельно нужны application-consistency tests; infrastructure restore не выдаётся за доказательство database consistency.
+- Команды классифицированы как read-only или configuration-changing, а sensitive exports явно исключены из документации.
 
-# Result
+## Результат
 
-The environment gained a usable operational source of truth, repeatable change/incident methods, and a verified infrastructure-level restore path. The documentation also made remaining single points of failure and unverified recovery boundaries visible for prioritization.
+У среды появился пригодный для эксплуатации источник истины, повторяемые методы change/incident и проверенная infrastructure-level цепочка восстановления. Документация также сделала видимыми remaining single points of failure и непроверенные recovery boundaries, чтобы их можно было приоритизировать.
 
-# What this case demonstrates
+## Что доказывает кейс
 
-- Linux and production operations.
-- Network segmentation, routing, VPN, virtualization, storage, backup, and DR.
-- Cross-layer incident diagnosis and evidence-based root-cause analysis.
-- Runbook, change-management, and operational documentation design.
+- Linux и эксплуатацию production-среды.
+- Network segmentation, routing, VPN, virtualization, storage, backup и DR.
+- Cross-layer incident diagnosis и evidence-based root-cause analysis.
+- Проектирование runbook, change management и operational documentation.
 
-Related documents: [backup and restore runbook](../../infrastructure/backup-restore-runbook.md), [sanitized incident analysis](../../infrastructure/incident-analysis.md).
-
+Связанные документы: [runbook backup/restore](../../infrastructure/backup-restore-runbook.md), [санитизированный incident analysis](../../infrastructure/incident-analysis.md).

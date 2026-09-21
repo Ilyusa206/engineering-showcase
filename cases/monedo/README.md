@@ -1,21 +1,21 @@
-# Multi-tenant Finance and Inventory Platform
+# Мультитенантная система финансов и учёта
 
-Private personal product. No user financial data or deployment secrets are published.
+Источник — приватный личный продукт. Финансовые данные пользователей и deployment secrets не публикуются.
 
-# Problem
+## Задача
 
-One application needed to support personal, shared, and small-business finance without weakening tenant isolation or financial correctness. A later business domain added catalogue, locations, production, transfers, sales, write-offs, stock valuation, and an atomic link between a physical sale and financial income.
+Одно приложение должно было поддерживать личные, совместные и небольшие бизнес-финансы без ослабления tenant isolation и финансовой корректности. Последующий business domain добавил catalogue, locations, production, transfers, sales, write-offs, stock valuation и атомарную связь физической продажи с финансовым доходом.
 
-# Constraints
+## Ограничения
 
-- Money cannot use floating-point arithmetic.
-- Membership in one shared space must never grant access to another.
-- Account balances and transaction history must not diverge.
-- Retried mutations must not duplicate ledger entries.
-- Stock is an auditable movement ledger, not an editable number.
-- Mobile realtime updates must not become a second source of truth.
+- Денежные величины нельзя хранить в floating point.
+- Membership в одном space не должна давать доступ к другому.
+- Account balance и transaction history не могут расходиться.
+- Повтор mutation не должен дублировать ledger entry.
+- Stock — это проверяемый movement ledger, а не редактируемое число.
+- Mobile realtime не становится вторым источником истины.
 
-# Architecture / approach
+## Архитектура и подход
 
 ```mermaid
 flowchart TD
@@ -24,49 +24,48 @@ flowchart TD
     API --> P["Permission service"]
     API --> F["Finance modules"]
     API --> I["Inventory modules"]
-    P --> DB[(PostgreSQL / Prisma)]
+    P --> DB[("PostgreSQL / Prisma")]
     F --> DB
     I --> DB
 ```
 
-The system is a pnpm/Turborepo monorepo with a Fastify API, Prisma/PostgreSQL data layer, Expo client, and shared TypeScript contracts/utilities. A modular monolith preserves transactional boundaries while keeping domains explicit.
+Система организована как pnpm/Turborepo monorepo: Fastify API, Prisma/PostgreSQL data layer, Expo client и общие TypeScript contracts/utilities. Modular monolith сохраняет транзакционные границы, не смешивая домены логически.
 
-# My implementation
+## Что я реализовал
 
-- Modeled tenant, space, membership, invitation, account, transaction, planning, audit, export, inventory, and production domains.
-- Centralized exact-space permission checks in a backend service rather than trusting route parameters or client state.
-- Stored money as integer minor units (`BIGINT`) and serialized it as strings across JSON boundaries.
-- Implemented transaction creation with input validation, account deltas, splits, audit records, and idempotency records inside one Prisma transaction.
-- Built inventory documents and immutable movements, including lot-aware stock allocation and sale-to-income linkage.
-- Implemented JWT access tokens, opaque refresh sessions, token hashing/rotation, invitation hashing, and structured-log redaction.
-- Added authenticated WebSocket events; the mobile client invalidates TanStack Query caches and refetches authoritative state.
-- Built React Native/Expo flows for finance, analytics, spaces, members, exports, and inventory operations.
+- Модели tenant, space, membership, invitation, account, transaction, planning, audit, export, inventory и production.
+- Централизованные permission checks для конкретного space на backend, без доверия route parameters и client state.
+- Хранение денег в integer minor units (`BIGINT`) и сериализацию строками через JSON boundary.
+- Создание transaction с validation, account deltas, splits, audit record и idempotency record в одной Prisma transaction.
+- Inventory documents и immutable movements, включая lot-aware stock allocation и связь sale с income.
+- JWT access tokens, opaque refresh sessions, hashing/rotation tokens, hashing invitations и redaction structured logs.
+- Authenticated WebSocket events; mobile client инвалидирует TanStack Query cache и заново получает авторитетное состояние.
+- React Native/Expo flows для finance, analytics, spaces, members, exports и inventory operations.
 
-# Interesting engineering decisions
+## Ключевые инженерные решения
 
-1. **Space is the permission boundary.** A higher-level family/tenant container does not imply access to every space; each request verifies active membership in the exact resource scope.
-2. **Balances are updated with the ledger.** Transaction row, splits, cached account deltas, audit record, and idempotency record share one database transaction.
-3. **Stock is derived from movements.** Posted documents create signed immutable movement rows; draft edits do not affect balances.
-4. **Realtime sends invalidation, not replacement state.** The WebSocket identifies what changed, and the client refetches through authorized API queries.
-5. **Single-use invitations are enforced atomically.** Plaintext codes are returned once, stored as hashes, expire, and reject replay.
+1. **Space — самостоятельная permission boundary.** Верхнеуровневый family/tenant container не даёт доступ ко всем spaces: каждый request проверяет активную membership в точном scope.
+2. **Balance изменяется вместе с ledger.** Transaction row, splits, cached account deltas, audit и idempotency record фиксируются одной database transaction.
+3. **Stock выводится из movements.** Posted document создаёт signed immutable movements; draft не влияет на остатки.
+4. **Realtime передаёт invalidation, а не replacement state.** Event сообщает, что изменилось, после чего клиент выполняет authorized API query.
+5. **Одноразовый invitation обеспечивается атомарно.** Plaintext code возвращается один раз, хранится как hash, имеет срок действия и не допускает replay.
 
-# Reliability / security / testing
+## Надёжность, безопасность и тестирование
 
-- CI runs Prisma validation/deploy, lint, typecheck, unit tests, build, and PostgreSQL-backed checks.
-- Integration/E2E coverage exercises multiple users, invitations, replay/expiry/revoke, permission and IDOR boundaries, transfers, budgets, analytics, multi-currency, and export security.
-- The schema uses check constraints and foreign keys for document lifecycle, locations, quantities, and financial linkage.
-- Upload endpoints stay disabled until file-signature validation and a safe storage adapter exist.
+- CI выполняет Prisma validation/deploy, lint, typecheck, unit tests, build и проверки с PostgreSQL.
+- Integration/E2E tests проверяют несколько пользователей, invitations, replay/expiry/revoke, permission и IDOR boundaries, transfers, budgets, analytics, multi-currency и export security.
+- Check constraints и foreign keys защищают document lifecycle, locations, quantities и financial linkage.
+- Upload endpoints остаются выключенными, пока нет file-signature validation и безопасного storage adapter.
 
-# Result
+## Результат
 
-The implemented platform covers shared financial operations and a business inventory/production slice with atomic finance linkage. The repository clearly separates released alpha functionality from later feature branches and does not present roadmap items as completed work.
+Реализованы alpha-функции совместных финансов и business-модуль inventory/production с атомарной финансовой связью. В исходном репозитории отделены released alpha baseline и последующие feature-ветки; roadmap не выдаётся за завершённую работу, а система — за зрелый production deployment.
 
-# What this case demonstrates
+## Что доказывает кейс
 
-- TypeScript, Fastify, Prisma, PostgreSQL, React Native/Expo, pnpm, and Turborepo.
-- Multi-tenant authorization and security testing.
-- Financial/inventory domain modeling and atomic operations.
-- WebSocket-driven cache invalidation with the API as source of truth.
+- TypeScript, Fastify, Prisma, PostgreSQL, React Native/Expo, pnpm и Turborepo.
+- Multi-tenant authorization и security testing.
+- Моделирование finance/inventory domain и атомарные операции.
+- WebSocket-driven cache invalidation при API как source of truth.
 
-Related samples: [atomic ledger](../../database/atomic-ledger.ts), [tenant RBAC](../../backend/rbac-boundary.ts), [realtime invalidation](../../mobile/realtime-invalidation.ts).
-
+Связанные примеры: [atomic ledger](../../database/atomic-ledger.ts), [tenant RBAC](../../backend/rbac-boundary.ts), [realtime invalidation](../../mobile/realtime-invalidation.ts).

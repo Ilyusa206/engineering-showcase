@@ -1,26 +1,27 @@
-# Stack and Evidence
+# Стек и подтверждающие материалы
 
-This list contains technologies supported by implemented work. It is intentionally narrower than a keyword inventory.
+В таблицу включены только технологии, подтверждённые реализованной работой. Это карта доказательств, а не перечень ключевых слов.
 
-| Capability | Technology | Strongest evidence |
+| Область | Технологии и практики | Наиболее сильное доказательство |
 |---|---|---|
-| Backend APIs | Node.js, TypeScript, Express, Fastify, Zod | [BIC Hub](cases/bic-hub/README.md), [Amorie](cases/amorie/README.md), [Monedo](cases/monedo/README.md) |
-| Web applications | React, Next.js, Vite | [BIC Hub](cases/bic-hub/README.md), [Amorie](cases/amorie/README.md) |
-| Mobile applications | React Native, Expo, Expo Router, TanStack Query, SecureStore | [BIC Hub](cases/bic-hub/README.md), [Monedo](cases/monedo/README.md) |
-| Relational data | PostgreSQL, SQL, Prisma, constraints, migrations | [Monedo](cases/monedo/README.md), [migration sample](database/checksummed-migrations.ts) |
-| Queues and cache | Redis, BullMQ, deterministic jobs, recovery | [Amorie](cases/amorie/README.md), [outbox sample](backend/recoverable-outbox.ts) |
-| Realtime | Socket.IO, WebSocket, server events, presence | [BIC Hub](cases/bic-hub/README.md), [realtime sample](mobile/realtime-invalidation.ts) |
-| Authentication | Keycloak, OIDC, OAuth 2.0, PKCE, JWT, refresh rotation | [BIC Hub](cases/bic-hub/README.md), [mobile session sample](mobile/pkce-session-manager.ts) |
-| Authorization | RBAC, resource membership, tenant isolation | [Monedo](cases/monedo/README.md), [RBAC sample](backend/rbac-boundary.ts) |
-| Containers | Docker, Docker Compose, health checks, isolated networks | [Compose sample](devops/compose.yaml), [web platform](cases/web-platform/README.md) |
-| Delivery | GitHub Actions, build/test gates, migration validation | [BIC Hub](cases/bic-hub/README.md), [CI sample](.github/workflows/validate.yml) |
-| Infrastructure | Linux, Proxmox VE/PBS, TrueNAS, iSCSI, VLAN, VPN | [Infrastructure case](cases/infrastructure/README.md) |
-| Recovery | Backup verification, isolated restore, DR dependency order | [Restore runbook](infrastructure/backup-restore-runbook.md) |
-| Web platform | Nginx, PHP, MariaDB, WordPress migration and cutover | [Web platform case](cases/web-platform/README.md) |
+| Backend API | Node.js, TypeScript, Express, Fastify, Zod | [BIC Hub](cases/bic-hub/README.md), [Amorie](cases/amorie/README.md), [Monedo](cases/monedo/README.md) |
+| Web-приложения | React, Next.js, Vite | [BIC Hub](cases/bic-hub/README.md), [Amorie](cases/amorie/README.md) |
+| Mobile-приложения | React Native, Expo, Expo Router, TanStack Query, SecureStore | [BIC Hub](cases/bic-hub/README.md), [Monedo](cases/monedo/README.md) |
+| Реляционные данные | PostgreSQL, SQL, Prisma, constraints, migrations | [Monedo](cases/monedo/README.md), [пример migrations](database/checksummed-migrations.ts) |
+| Очереди и cache | Redis, BullMQ, deterministic job ID, recovery | [Amorie](cases/amorie/README.md), [пример outbox](backend/recoverable-outbox.ts) |
+| Realtime | Socket.IO, WebSocket, server events, presence | [BIC Hub](cases/bic-hub/README.md), [пример invalidation](mobile/realtime-invalidation.ts) |
+| Authentication | Keycloak, OIDC, OAuth 2.0, PKCE, JWT, refresh rotation | [BIC Hub](cases/bic-hub/README.md), [mobile session manager](mobile/pkce-session-manager.ts) |
+| Authorization | RBAC, resource membership, tenant isolation | [Monedo](cases/monedo/README.md), [пример RBAC](backend/rbac-boundary.ts) |
+| Контейнеры | Docker, Docker Compose, health checks, изолированные сети | [Compose-пример](devops/compose.yaml), [web-платформа](cases/web-platform/README.md) |
+| Delivery | GitHub Actions, build/test gates, проверка migrations | [BIC Hub](cases/bic-hub/README.md), [CI workflow](.github/workflows/validate.yml) |
+| Инфраструктура | Linux, Proxmox VE/PBS, TrueNAS, iSCSI, VLAN, VPN | [инфраструктурный кейс](cases/infrastructure/README.md) |
+| Восстановление | Backup verification, isolated restore, порядок DR по зависимостям | [restore runbook](infrastructure/backup-restore-runbook.md) |
+| Web-платформы | Nginx, PHP, MariaDB, WordPress migration и cutover | [кейс миграции](cases/web-platform/README.md) |
 
-## Scope notes
+## Границы утверждений
 
-- LiveKit/WebRTC evidence is a validated LAN technical prototype, not a production conferencing claim.
-- The notification-service sample demonstrates an implemented foundation; live push-provider delivery is not claimed.
-- Infrastructure diagrams use generic names and address ranges are omitted by design.
-
+- LiveKit/WebRTC подтверждён как проверенный LAN technical prototype, а не production-сервис видеоконференций.
+- В `Amorie` реальны order/payment flow и реализованный asynchronous subsystem; live telephony не заявляется запущенной до acceptance внешнего provider.
+- `Monedo` подтверждает реализованные alpha-функции и последующие feature-ветки, но не выдаётся за зрелый production-продукт.
+- Платформа WordPress подтверждена pilot’ом; final cutover остаётся отдельным этапом.
+- Инфраструктурные схемы используют только обобщённые названия, без реальных адресов, hostnames, inventory и capacity.

@@ -1,16 +1,17 @@
-# Code Samples
+# Примеры кода
 
-These are small, interview-defensible reconstructions of patterns implemented in the source systems. They are not verbatim production files and are not intended to rebuild the private products.
+Это небольшие реконструкции паттернов, реализованных в исходных системах и пригодных для обсуждения на техническом интервью. Они не являются дословными production-файлами и не позволяют собрать закрытые продукты.
 
-| Sample | Engineering point |
+| Пример | Инженерная идея |
 |---|---|
-| [RBAC boundary](../backend/rbac-boundary.ts) | Authenticate first, then authorize the exact tenant/resource |
-| [Recoverable outbox](../backend/recoverable-outbox.ts) | PostgreSQL authority with deterministic queue projection |
-| [Migration runner](../database/checksummed-migrations.ts) | Immutable migration history and concurrent-start safety |
-| [Atomic ledger](../database/atomic-ledger.ts) | Idempotency, balance deltas, and audit in one transaction |
-| [PKCE session manager](../mobile/pkce-session-manager.ts) | Secure storage and single-flight refresh |
-| [Realtime invalidation](../mobile/realtime-invalidation.ts) | Reconnect with API-authoritative client state |
-| [Data-driven directory](../frontend/data-driven-directory.ts) | Safe rendering and decoupled UI events |
-| [Compose isolation](../devops/compose.yaml) | Non-public data services and migration gating |
-| [Reverse proxy](../devops/nginx.conf) | HTTP and WebSocket routing with security defaults |
+| [RBAC boundary](../backend/rbac-boundary.ts) | Сначала authentication, затем authorization точного tenant/resource |
+| [Recoverable outbox](../backend/recoverable-outbox.ts) | PostgreSQL как источник истины и детерминированная проекция в очередь |
+| [Migration runner](../database/checksummed-migrations.ts) | Неизменяемая migration history и защита от конкурентного запуска |
+| [Atomic ledger](../database/atomic-ledger.ts) | Idempotency, balance deltas и audit в одной транзакции |
+| [PKCE session manager](../mobile/pkce-session-manager.ts) | Secure storage и single-flight refresh |
+| [Realtime invalidation](../mobile/realtime-invalidation.ts) | Reconnect при сохранении API источником истины |
+| [Data-driven directory](../frontend/data-driven-directory.ts) | Безопасный rendering и слабосвязанные UI events |
+| [Compose isolation](../devops/compose.yaml) | Непубличные data services и запуск приложения после migrations |
+| [Reverse proxy](../devops/nginx.conf) | HTTP/WebSocket routing и базовые security headers |
 
+Все ссылки выше разрешаются относительно текущего каталога и проверяются командой `npm run verify`.

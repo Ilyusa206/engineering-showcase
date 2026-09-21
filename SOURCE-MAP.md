@@ -1,22 +1,27 @@
-# Source and Disclosure Map
+# Карта источников и границ раскрытия
 
-Private repositories are evidence sources, not portfolio dependencies. A reviewer can understand every public case without access to them.
+Приватные репозитории служат каноническими источниками фактов, но не являются зависимостями портфолио. Содержание каждого публичного кейса должно быть понятно без доступа к ним.
 
-| Showcase item | Evidence source | Publication mode | Deliberately omitted |
+| Материал showcase | Источник доказательств | Формат публикации | Что намеренно исключено |
 |---|---|---|---|
-| [Internal employee platform](cases/bic-hub/README.md) | `bic-hub`; product passport evidence from `bic-hub-transaction` | Architecture description and focused reconstructions | Private code, endpoints, topology, employee data, product transaction material |
-| [Commercial asynchronous service](cases/amorie/README.md) | `Amorie` | Architecture description and generic worker patterns | Provider credentials, orders, user data, product-specific commercial details |
-| [Multi-tenant finance platform](cases/monedo/README.md) | `family-finance` | Architecture description and generic transaction patterns | User financial data, private deployment values, full domain implementation |
-| [Infrastructure and DR](cases/infrastructure/README.md) | `BIC-Infrastructure-Docs` | Fully sanitized topology, runbook, and incident method | Addresses, hostnames, sites, inventory, exact capacity, device identities |
-| [WordPress migration platform](cases/web-platform/README.md) | `webstaging` | Sanitized migration method | Domains, hosting accounts, paths, credentials, DNS records, customer content |
-| [Commercial web interfaces](cases/commercial-web/README.md) | `vetclinic-site` | Generic reconstruction | Staff names, asset URLs, customer content, full delivered code |
-| [Realtime meetings prototype](cases/realtime-meetings/README.md) | `bic-meetings` draft implementation branch | Architecture and verified prototype boundary | Internal DNS, VM identity, port exposure policy specific to the employer |
-| [Code samples](code-samples/README.md) | Patterns evidenced across the sources above | Small sanitized reconstructions | Proprietary naming and product-complete logic |
+| [Внутренняя платформа для сотрудников](cases/bic-hub/README.md) | `bic-hub`; evidence по product passport из `bic-hub-transaction` | Архитектурное описание и короткие реконструкции | Приватный код, endpoints, topology, данные сотрудников, материалы сделки |
+| [Коммерческий асинхронный сервис](cases/amorie/README.md) | `Amorie` | Архитектурное описание и обобщённые worker-паттерны | Provider credentials, заказы, пользовательские данные, коммерческие детали продукта |
+| [Мультитенантная система финансов и учёта](cases/monedo/README.md) | `family-finance` | Архитектурное описание и обобщённые транзакционные паттерны | Финансовые данные пользователей, deployment values, полная предметная реализация |
+| [Инфраструктура и DR](cases/infrastructure/README.md) | `BIC-Infrastructure-Docs` | Полностью санитизированные topology, runbook и incident method | IP, hostnames, площадки, inventory, точные capacity и device identities |
+| [Платформа миграции WordPress](cases/web-platform/README.md) | `webstaging` | Санитизированная методика миграции | Domains, hosting accounts, paths, credentials, DNS records и клиентский контент |
+| [Коммерческие web-интерфейсы](cases/commercial-web/README.md) | `vetclinic-site` | Обобщённая реконструкция | Имена сотрудников, asset URLs, клиентский контент и полный переданный код |
+| [Realtime-встречи](cases/realtime-meetings/README.md) | Реализация в рабочей ветке `bic-meetings` | Архитектура и подтверждённая граница prototype | Внутренний DNS, VM identity и специфичная для работодателя port exposure policy |
+| [Примеры кода](code-samples/README.md) | Паттерны, подтверждённые перечисленными выше источниками | Небольшие санитизированные реконструкции | Proprietary naming и product-complete logic |
 
-## Sources reviewed but not promoted to standalone cases
+Ссылка на каталог примеров проверяется относительно корня репозитория: [code-samples/README.md](code-samples/README.md). Ссылки внутри этого каталога разрешаются относительно `code-samples/` и ведут к фактическим файлам в `backend/`, `database/`, `mobile/`, `frontend/` и `devops/`.
 
-- `bic-notifications`: substantial foundation, but transport is intentionally disabled and no production deployment is claimed. Its recoverable outbox ideas inform a labeled sample only.
-- `Forge`: implemented MVP on a feature branch, but it overlaps stronger application evidence and has a narrower verification surface.
-- `bic-cloud-theme`: useful Nextcloud application and theming work, but not central to the target Node.js/React/Platform narrative.
-- `freelance-workspace`: positioning material, not engineering evidence.
+## Изученные источники без отдельного кейса
 
+- `bic-notifications`: реализована существенная foundation, но live transport намеренно отключён, production deployment не заявляется. Паттерн recoverable outbox использован только в маркированной реконструкции.
+- `Forge`: в feature-ветке есть работающий MVP, но он дублирует более сильные application-кейсы и имеет меньшую поверхность независимой проверки.
+- `bic-cloud-theme`: содержательная разработка Nextcloud app/theme, но она периферийна для основного Node.js/React/Platform-позиционирования.
+- `freelance-workspace`: материал о позиционировании и организации работы, а не самостоятельное инженерное доказательство.
+
+## Ограниченное использование `bic-hub-transaction`
+
+Из этого источника использованы только подходы к product decomposition, evidence levels, handover и scope management. Цены, оценка, переговоры, юридическая стратегия и внутренние управленческие документы не переносятся ни в каком виде.

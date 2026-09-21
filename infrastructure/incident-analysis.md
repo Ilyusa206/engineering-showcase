@@ -1,49 +1,48 @@
-# Sanitized Storage Incident Analysis
+# Санитизированный разбор storage incident
 
-## Summary
+## Кратко
 
-Several virtual machines became unresponsive even though the hypervisor still reported them as running, the iSCSI session was established, and the storage pool reported healthy. Cross-layer evidence showed that the storage target could not allocate request buffers, returned backpressure/errors to the initiator, and caused long write timeouts and guest I/O stalls.
+Несколько виртуальных машин перестали отвечать, хотя hypervisor по-прежнему показывал их как работающие, iSCSI session оставалась установленной, а storage pool — healthy. Сопоставление событий на разных слоях показало: storage target не мог выделить request buffers, возвращал backpressure/errors инициатору, после чего возникали длительные write timeouts и остановка guest I/O.
 
-## Impact chain
+## Цепочка влияния
 
 ```mermaid
 flowchart TD
-    M["Insufficient kernel memory headroom"] --> A["Target buffer allocation failures"]
-    A --> B["BUSY / queue saturation"]
-    B --> T["Initiator write timeouts"]
-    T --> V["Guest I/O stalls"]
-    V --> D["Identity and application degradation"]
+    M["Недостаточный запас kernel memory"] --> A["Ошибка выделения target buffers"]
+    A --> B["BUSY / переполнение очереди"]
+    B --> T["Write timeouts на initiator"]
+    T --> V["Остановка guest I/O"]
+    V --> D["Деградация identity и приложений"]
 ```
 
-## Evidence considered
+## Рассмотренные доказательства
 
-- hypervisor kernel I/O timeout timestamps;
-- target service allocation errors and request sizes;
-- storage-pool health and controller logs;
-- switch counters, optics, link state, and dropped/error frames;
-- iSCSI session continuity;
-- kernel memory, slab, cache limits, and available headroom;
-- dependent identity and application failures.
+- timestamps I/O timeouts в kernel hypervisor;
+- ошибки allocation в target service и размеры requests;
+- состояние storage pool и controller logs;
+- switch counters, optics, link state, dropped/error frames;
+- непрерывность iSCSI session;
+- kernel memory, slab, cache limits и доступный headroom;
+- сбои зависимых identity- и application-сервисов.
 
-## Reasoning
+## Ход анализа
 
-The healthy pool ruled out a simple filesystem/pool failure but did not prove target service health. Clean physical-link counters reduced the likelihood of packet corruption. The temporal match between target allocation failures and initiator timeouts established the immediate failure mechanism.
+Healthy pool исключал простую поломку filesystem/pool, но не подтверждал здоровье target service. Чистые counters физического линка уменьшали вероятность повреждения packets. Совпадение по времени ошибок allocation на target и timeouts на initiator установило непосредственный механизм отказа.
 
-The deeper kernel allocation cause could not be proven retrospectively because no complete memory snapshot existed at incident onset. The strongest risk factor was an automatically sized filesystem cache with too little memory reserved for the target service and kernel.
+Точную первичную причину kernel allocation ретроспективно доказать было нельзя: на момент начала incident не сохранился полный memory snapshot. Наиболее сильным подтверждённым фактором риска был автоматически рассчитанный filesystem cache, оставлявший слишком мало памяти для target service и kernel.
 
-## Corrective action
+## Корректирующее изменение
 
-A persistent upper cache limit was applied through the supported platform mechanism, leaving explicit memory headroom. The team did not simultaneously change target thread counts, swap, networking, firmware, and storage layout; this preserved causal clarity and rollback safety.
+Через поддерживаемый платформой механизм был установлен постоянный верхний cache limit, сохраняющий явный memory headroom. Одновременно не менялись target thread counts, swap, networking, firmware и storage layout — это сохранило причинную ясность и возможность rollback.
 
-## Verification
+## Проверка результата
 
-- effective cache limit changed as intended;
-- available memory increased;
-- new target allocation failures stopped during the observation window;
-- dependent storage and application paths recovered;
-- monitoring follow-up was defined for target allocation errors, memory headroom, cache size, and initiator timeouts.
+- effective cache limit изменился ожидаемым образом;
+- объём доступной памяти вырос;
+- за окно наблюдения не появилось новых target allocation failures;
+- зависимые storage- и application-paths восстановились;
+- для monitoring были определены target allocation errors, memory headroom, cache size и initiator timeouts.
 
-## Lesson
+## Вывод
 
-“Pool healthy,” “session connected,” and “VM running” are partial signals. A storage service can fail in the request path while all three remain true.
-
+Сигналы «pool healthy», «session connected» и «VM running» отражают только отдельные слои. Storage service может отказать в request path, пока все три остаются формально истинными.

@@ -1,33 +1,39 @@
-# Public Portfolio Security Policy
+# Политика безопасной публикации
 
-This repository is built from evidence in private production, internal, commercial, and personal projects. Publication is governed by minimization: show the engineering decision without exposing the environment that motivated it.
+Портфолио основано на материалах из приватных production, внутренних, коммерческих и личных проектов. Главный принцип — минимизация: показать инженерное решение, не раскрывая среду, бизнес-контекст и данные, из которых оно возникло.
 
-## Publication modes
+## Форматы публикации
 
-1. **Architecture description** — for topology, product decomposition, operational history, or business logic that should not be reproduced as code.
-2. **Sanitized reconstruction** — a small generic example that preserves the engineering pattern but replaces names, identifiers, schemas, and proprietary logic.
-3. **Original public fragment** — only when the source is already public and the fragment contains no unnecessary personal or customer data.
+1. **Архитектурное описание** — для topology, product decomposition, operational history и предметной логики, которые нельзя безопасно воспроизводить кодом.
+2. **Санитизированная реконструкция** — небольшой обобщённый пример, сохраняющий инженерный паттерн, но заменяющий названия, идентификаторы, схемы и proprietary logic.
+3. **Оригинальный публичный фрагмент** — только если исходник уже публичен и не содержит лишних персональных или клиентских данных.
 
-## Prohibited content
+## Что запрещено публиковать
 
-- secrets, tokens, credentials, private keys, cookies, or `.env` values;
-- internal addresses, real hostnames, private URLs, exact production inventory, or sensitive topology;
-- employee, customer, or order data;
-- commercial valuation, transaction prices, legal positions, or negotiation material;
-- complete proprietary modules or enough code to reconstruct a private product;
-- production dumps, backups, configuration exports, or operational access instructions.
+- secrets, tokens, credentials, private keys, cookies и значения `.env`;
+- внутренние IP, реальные hostnames и private URLs, точный production inventory и чувствительную topology;
+- персональные данные сотрудников и клиентов, сведения о заказах и платежах;
+- оценку бизнеса, стоимость сделки, юридическую позицию и материалы переговоров;
+- полные proprietary-модули или набор кода, достаточный для восстановления закрытого продукта;
+- production dumps, backups, configuration exports и инструкции, дающие операционный доступ.
 
-## Reconstruction label
+## Маркировка реконструкций
 
-Every reconstructed source file starts with:
+Каждый реконструированный исходный файл начинается с текста:
 
-> Sanitized reconstruction based on an implemented system. Not verbatim production code.
+> Санитизированная реконструкция на основе реализованной системы. Не является дословной копией production-кода.
 
-The label distinguishes evidence-backed patterns from copied production source. A reconstruction may simplify names and surrounding infrastructure, but it must not invent a capability that the source repositories do not implement.
+Маркировка отделяет подтверждённый инженерный паттерн от оригинального закрытого исходника. Реконструкция может упрощать имена и окружение, но не должна добавлять возможности, которых нет в исходных репозиториях.
 
-## Automated checks
+## Автоматические проверки
 
-`npm run verify` checks repository links, required case sections, private address patterns, and common credential signatures. It is a guardrail, not a substitute for review.
+`npm run verify` проверяет:
 
-If a sensitive detail is discovered, remove it from the current tree and assess Git history before assuming the deletion is complete.
+- относительные Markdown-ссылки;
+- обязательную структуру каждого кейса;
+- синтаксис и загрузку TypeScript-примеров;
+- наличие маркировки реконструкции у публикуемых samples;
+- private IP, внутренние hostname suffixes, распространённые credential signatures и JWT/Bearer-подобные значения;
+- отсутствие потенциально опасных типов файлов: `.env`, private keys, archives, dumps и backups.
 
+Автоматическая проверка — дополнительный барьер, а не замена ручного review. Если чувствительная информация обнаружена после публикации, недостаточно удалить её из текущего дерева: необходимо оценить всю Git history и при необходимости отозвать скомпрометированные credentials.

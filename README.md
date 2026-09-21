@@ -1,51 +1,57 @@
-# Engineering Showcase
+# Инженерное портфолио Ильи
 
-I'm Ilya, an infrastructure engineer and full-stack developer who builds systems across application, platform, and operations boundaries. My work includes Node.js/TypeScript backends, React and React Native clients, PostgreSQL and Redis, realtime communication, identity and access control, Docker-based delivery, Linux infrastructure, networking, storage, backup, and recovery.
+Я Илья — системный администратор по основной должности и разработчик, который ведёт прикладные системы от модели данных и backend API до клиентских приложений, поставки и эксплуатации. В зависимости от вакансии рассматриваю четыре отдельные специализации: **Full-stack**, **Backend**, **DevOps / Platform** и **System / Infrastructure**.
 
-This repository is a curated technical portfolio. It is not a dump of private repositories. Some examples are **sanitized reconstructions based on real implementations**; every reconstruction is labeled and deliberately excludes production identifiers, credentials, private topology, personal data, and proprietary product code.
+Основной прикладной стек: **Node.js, TypeScript, Express, Fastify, React, Next.js, React Native / Expo, PostgreSQL, Redis, Socket.IO / WebSocket, Docker Compose и GitHub Actions**. В инфраструктурных задачах работаю с **Linux, Proxmox VE / PBS, TrueNAS, iSCSI, VLAN, VPN, мониторингом, backup и disaster recovery**.
 
-## Open these first
+## Что открыть в первую очередь
 
-1. [Internal employee platform](cases/bic-hub/README.md) — multi-client product architecture, OIDC/RBAC, realtime messaging, PostgreSQL migrations, CI/CD, and operations.
-2. [Commercial asynchronous service](cases/amorie/README.md) — payments, durable scheduling, BullMQ workers, FFmpeg, encryption, and recovery after restart.
-3. [Multi-tenant finance platform](cases/monedo/README.md) — Fastify/Prisma, tenant isolation, atomic financial and inventory operations, WebSocket invalidation, React Native, and security tests.
-4. [Infrastructure and disaster recovery](cases/infrastructure/README.md) — VLANs, Proxmox, storage, backup verification, restore drills, incidents, and change management.
-
-## Capability map
-
-| Area | Evidence in this repository |
+| Кейс | Что именно он доказывает |
 |---|---|
-| Backend | REST services, authorization boundaries, idempotency, queues, state machines, transactional workflows |
-| Web | React/Next.js product surfaces and data-driven responsive components |
-| Mobile | React Native/Expo, PKCE session lifecycle, SecureStore, realtime reconnect/invalidation |
-| Data | PostgreSQL, Prisma, explicit SQL migrations, constraints, checksums, audit trails |
-| Realtime | Socket.IO messaging, WebSocket invalidation, presence events, reconnect behavior |
+| [Внутренняя платформа для сотрудников](cases/bic-hub/README.md) | Full-stack и mobile-разработка, Node.js/React/React Native, OIDC/RBAC, Socket.IO, PostgreSQL migrations, Docker и CI/CD |
+| [Коммерческий асинхронный сервис](cases/amorie/README.md) | Backend-проектирование: платежи, state machine, BullMQ workers, FFmpeg, идемпотентность, восстановление незавершённых задач |
+| [Мультитенантная система финансов и учёта](cases/monedo/README.md) | Fastify/Prisma, tenant isolation, атомарные финансовые и складские операции, WebSocket invalidation, security tests |
+| [Инфраструктура, backup и disaster recovery](cases/infrastructure/README.md) | Linux/DevOps и системная инженерия: VLAN, Proxmox, TrueNAS, iSCSI, проверка backup, restore drill, incident/change management |
+
+Эти четыре кейса не означают «умею всё». Они показывают разные контуры одного опыта: разработку продукта, backend и данные, delivery/эксплуатацию, а также системную инфраструктуру. Для конкретной вакансии релевантен соответствующий набор доказательств.
+
+## Почему здесь нет исходников закрытых продуктов
+
+Это отобранное публичное портфолио, а не выгрузка приватных репозиториев. Код в каталогах с примерами — **санитизированные реконструкции на основе реально реализованных решений**, а не дословные production-файлы. В них сохранён инженерный паттерн, но заменены названия, идентификаторы, схемы и предметная логика. Не публикуются credentials, внутренние адреса и topology, персональные данные, коммерческие условия и код, по которому можно восстановить закрытый продукт.
+
+Правила публикации описаны в [SECURITY.md](SECURITY.md), а происхождение каждого материала — в [SOURCE-MAP.md](SOURCE-MAP.md).
+
+## Карта компетенций
+
+| Направление | Публичные доказательства |
+|---|---|
+| Backend | REST API, границы авторизации, идемпотентность, очереди, state machine, транзакционные сценарии |
+| Web | React/Next.js-интерфейсы и адаптивные data-driven компоненты |
+| Mobile | React Native/Expo, PKCE session lifecycle, secure storage, reconnect и cache invalidation |
+| Data | PostgreSQL, Prisma, SQL migrations, constraints, checksums, audit trail |
+| Realtime | Socket.IO messaging, WebSocket invalidation, presence events, reconnect lifecycle |
 | Identity | Keycloak/OIDC, OAuth 2.0 Authorization Code + PKCE, JWT, RBAC, tenant permissions |
-| Delivery | Docker/Compose, Nginx, GitHub Actions, staging/production separation, rollback controls |
-| Infrastructure | Linux, Proxmox VE/PBS, TrueNAS, iSCSI, VLANs, VPN, monitoring, backup and DR |
-| Operations | Runbooks, release baselines, acceptance evidence, incident analysis, change management |
+| Delivery | Docker/Compose, Nginx, GitHub Actions, разделение staging/production, rollback controls |
+| Infrastructure | Linux, Proxmox VE/PBS, TrueNAS, iSCSI, VLAN, VPN, мониторинг, backup и DR |
+| Operations | Runbook’и, release baseline, acceptance evidence, incident analysis и change management |
 
-## Cases
+## Остальные кейсы
 
-- [Internal employee platform](cases/bic-hub/README.md)
-- [Commercial asynchronous service](cases/amorie/README.md)
-- [Multi-tenant finance platform](cases/monedo/README.md)
-- [Infrastructure and disaster recovery](cases/infrastructure/README.md)
-- [WordPress migration platform](cases/web-platform/README.md)
-- [Commercial web interfaces](cases/commercial-web/README.md)
-- [Self-hosted realtime meetings prototype](cases/realtime-meetings/README.md)
+- [Платформа миграции WordPress](cases/web-platform/README.md) — контролируемый перенос legacy-сайтов без наследования устаревшего runtime.
+- [Коммерческие web-интерфейсы](cases/commercial-web/README.md) — адаптивные компоненты на HTML/CSS/JavaScript внутри визуального конструктора.
+- [Self-hosted realtime-встречи](cases/realtime-meetings/README.md) — проверенный LAN prototype на LiveKit/WebRTC с честно зафиксированными границами готовности.
 
-## Focused samples
+## Короткие примеры кода
 
-- [RBAC and tenant boundary](backend/rbac-boundary.ts)
-- [Recoverable outbox worker](backend/recoverable-outbox.ts)
-- [Checksummed migration runner](database/checksummed-migrations.ts)
-- [Atomic ledger operation](database/atomic-ledger.ts)
+- [RBAC и tenant boundary](backend/rbac-boundary.ts)
+- [Recoverable outbox](backend/recoverable-outbox.ts)
+- [Migration runner с checksums](database/checksummed-migrations.ts)
+- [Атомарная операция ledger](database/atomic-ledger.ts)
 - [Mobile PKCE session manager](mobile/pkce-session-manager.ts)
-- [Mobile realtime invalidation](mobile/realtime-invalidation.ts)
-- [Data-driven responsive directory](frontend/data-driven-directory.ts)
-- [Isolated Compose stack](devops/compose.yaml)
-- [CI validation workflow](.github/workflows/validate.yml)
-- [Backup and restore runbook](infrastructure/backup-restore-runbook.md)
+- [Realtime cache invalidation](mobile/realtime-invalidation.ts)
+- [Data-driven directory](frontend/data-driven-directory.ts)
+- [Изолированный Compose stack](devops/compose.yaml)
+- [CI-проверка портфолио](.github/workflows/validate.yml)
+- [Runbook изолированного восстановления](infrastructure/backup-restore-runbook.md)
 
-See [STACK.md](STACK.md) for the evidence map, [SECURITY.md](SECURITY.md) for publication rules, and [SOURCE-MAP.md](SOURCE-MAP.md) for provenance and disclosure boundaries.
+Дополнительно: [обо мне и инженерном подходе](ABOUT.md), [стек с доказательствами](STACK.md), [архитектурные границы](architecture/system-boundaries.md) и [стратегия верификации](testing/verification-strategy.md).

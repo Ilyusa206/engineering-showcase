@@ -1,30 +1,29 @@
-# System Boundaries
+# Архитектурные границы
 
-The strongest projects in this portfolio use modular monoliths and adapters rather than defaulting to microservices.
+Основные проекты в портфолио используют modular monolith и adapters там, где преждевременное разделение на microservices ухудшило бы транзакционную целостность и эксплуатацию.
 
 ```mermaid
 flowchart TD
-    CLIENTS["Web and mobile clients"] --> APP["Application boundary"]
-    APP --> AUTH["Identity / authorization"]
-    APP --> DOM["Domain modules"]
-    DOM --> DB[(Durable database)]
+    CLIENTS["Web- и mobile-клиенты"] --> APP["Граница приложения"]
+    APP --> AUTH["Identity и authorization"]
+    APP --> DOM["Доменные модули"]
+    DOM --> DB[("Durable database")]
     DOM --> OUT["Outbox / events"]
-    OUT --> Q["Recoverable queue"]
-    APP --> ADAPTERS["External adapters"]
+    OUT --> Q["Восстанавливаемая очередь"]
+    APP --> ADAPTERS["Внешние adapters"]
 ```
 
-## Boundary rules
+## Правила границ
 
-- The database is authoritative for durable domain state.
-- Queues, caches, and realtime payloads can be reconstructed or refetched.
-- External providers do not own internal business entities.
-- Authentication establishes identity; authorization is evaluated separately for the exact resource.
-- A domain module can be extracted only when measured operational or scaling needs justify the network boundary.
-- A frontend visibility rule never substitutes for backend authorization.
+- Database остаётся источником истины для durable domain state.
+- Queues, caches и realtime payloads должны допускать восстановление или повторное чтение.
+- Внешний provider не владеет внутренними бизнес-сущностями.
+- Authentication устанавливает identity; authorization отдельно проверяется для конкретного resource.
+- Domain module выносится в отдельный сервис, только когда измеренные требования по эксплуатации или масштабированию оправдывают сетевую границу.
+- Скрытый frontend-элемент не заменяет backend authorization.
 
-## Why not split early
+## Почему система не дробится заранее
 
-The examined systems contain transactions that cross closely related concepts: payment plus product activation, inventory sale plus financial income, message creation plus receipts/notifications, and account entry plus balance/audit. Keeping those operations within one database and application boundary simplifies correctness and recovery.
+В рассмотренных проектах есть операции между тесно связанными сущностями: платёж и активация продукта, продажа товара и финансовый доход, создание сообщения и receipts/notifications, проводка и изменение balance/audit. Единая database и application boundary упрощают корректность и восстановление таких сценариев.
 
-The notification foundation is a justified separate-service experiment because it defines a durable ingestion/outbox contract and explicitly accepts at-least-once delivery. It is not presented as live until transport and migration acceptance exist.
-
+Foundation сервиса уведомлений — обоснованный эксперимент с отдельной service boundary: у него durable ingestion/outbox contract и явно принятая at-least-once delivery semantics. Он не заявляется работающим в production до acceptance транспорта и migration.

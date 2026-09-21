@@ -1,65 +1,64 @@
-# WordPress Migration Platform
+# Платформа миграции WordPress
 
-Private operational source. Domains, hosts, paths, credentials, and customer content are removed.
+Источник — приватный operational repository. Domains, hosts, paths, credentials и customer content удалены.
 
-# Problem
+## Задача
 
-Several legacy websites were distributed across hosting providers and old CMS stacks. The goal was to create an isolated, repeatable WordPress migration platform that preserved content and URLs without carrying unsupported legacy runtimes into the new production environment.
+Несколько legacy-сайтов находились у разных hosting providers и использовали старые CMS stacks. Требовалось создать изолированную, повторяемую платформу миграции WordPress, сохранив content и URLs, но не перенося неподдерживаемый legacy runtime в новую production-среду.
 
-# Constraints
+## Ограничения
 
-- The live site remained the source of truth until cutover.
-- Some sources depended on old PHP, themes, builders, or multi-site coupling.
-- Discovery and snapshot work could not mutate production.
-- Visual reconstruction had to use evidence from the source, not invented content.
-- Each target site needed independent runtime, database, backups, and rollback.
+- Live site оставался источником истины до cutover.
+- Часть источников зависела от старых PHP, themes, builders или multi-site coupling.
+- Discovery и snapshot не должны были изменять production.
+- Visual reconstruction опиралась только на evidence из источника, без придуманного контента.
+- Каждому target site требовались отдельные runtime, database, backups и rollback.
 
-# Architecture / approach
+## Архитектура и подход
 
 ```mermaid
 flowchart LR
-    SRC["Legacy production"] --> SNAP["Files + DB + checksums"]
-    SNAP --> CLONE["Isolated reference clone"]
-    SNAP --> WP["Clean WordPress target"]
+    SRC["Legacy production"] --> SNAP["Files, DB и checksums"]
+    SNAP --> CLONE["Изолированный reference clone"]
+    SNAP --> WP["Чистый WordPress target"]
     CLONE --> QA["Visual / URL comparison"]
     WP --> QA
-    QA --> CUT["Final delta + DNS cutover"]
+    QA --> CUT["Final delta и DNS cutover"]
 ```
 
-Each target uses its own Docker Compose project, MariaDB database, webroot, and loopback-bound backend behind Nginx. Legacy clones exist only as isolated visual/data references.
+Каждый target использует отдельный Docker Compose project, MariaDB, webroot и loopback-bound backend за Nginx. Legacy clones существуют только как изолированные reference environment для сравнения данных и внешнего вида.
 
-# My implementation
+## Что я реализовал
 
-- Audited hosting, DNS, CMS, database, and file sources and established an evidence hierarchy.
-- Created canonical snapshots with database dumps, file copies, metadata, and checksums.
-- Built an isolated legacy reference runtime where required for visual comparison.
-- Built clean WordPress/PHP/MariaDB targets and custom themes instead of copying obsolete core/theme/plugin stacks.
-- Migrated media and mapped legacy identifiers where necessary.
-- Preserved URL structures and created content types/templates based on verified source behavior.
-- Documented final snapshot/delta, smoke tests, rollback points, and DNS cutover rules.
+- Audit hosting, DNS, CMS, database и file sources с явной иерархией evidence.
+- Canonical snapshots: database dumps, file copies, metadata и checksums.
+- Изолированный legacy reference runtime там, где он требовался для visual comparison.
+- Чистые WordPress/PHP/MariaDB targets и custom themes без копирования устаревших core/theme/plugin stacks.
+- Перенос media и mapping legacy identifiers, где это требовалось.
+- Сохранение URL structure и content types/templates по проверенному поведению источника.
+- Правила final snapshot/delta, smoke tests, rollback points и DNS cutover.
 
-# Interesting engineering decisions
+## Ключевые инженерные решения
 
-1. **Reference clone is not the new platform.** It is disposable evidence for comparison, never the target runtime.
-2. **Content and behavior are separated from legacy implementation.** URLs, media, and rendered output can be preserved without importing vulnerable builders and plugins.
-3. **Every site is isolated.** Shared legacy multi-site coupling is removed so one update or failure does not implicitly affect another site.
-4. **Cutover uses fresh evidence.** A historical snapshot starts the migration, but a final delta is required before DNS changes.
+1. **Reference clone не становится новой платформой.** Это одноразовое evidence для сравнения, а не target runtime.
+2. **Content и behavior отделены от legacy implementation.** URLs, media и rendered output сохраняются без переноса уязвимых builders/plugins.
+3. **Каждый сайт изолирован.** Удаляется legacy multi-site coupling, при котором обновление или отказ одного сайта влияет на другой.
+4. **Cutover использует свежие данные.** Исторический snapshot запускает миграцию, но перед DNS change обязателен final delta.
 
-# Reliability / security / testing
+## Надёжность, безопасность и тестирование
 
-- Database dumps and file archives are checksummed.
-- A clean rollback point exists before content migration.
-- PHP syntax, asset availability, URL status, visual behavior, forms, and SEO redirects are acceptance targets.
-- Secrets belong in a vault; the repository contains only access references and verification dates.
-- Backend services are bound to loopback and published through the reverse proxy.
+- Database dumps и file archives снабжаются checksums.
+- До content migration создаётся чистая rollback point.
+- Acceptance включает PHP syntax, assets, URL status, visual behavior, forms и SEO redirects.
+- Secrets хранятся в vault; repository содержит только access references и verification dates.
+- Backend services привязаны к loopback и публикуются через reverse proxy.
 
-# Result
+## Результат
 
-The pilot produced a functioning clean WordPress runtime, migrated media and URL structures, reconstructed key pages from verified source content, and established a repeatable method for the remaining sites. Final cutover remains gated by visual acceptance and a fresh production delta.
+Pilot дал работающий чистый WordPress runtime, перенос media и URL structure, реконструкцию ключевых страниц по проверенному source content и повторяемую методику для остальных сайтов. Final cutover остаётся заблокирован до visual acceptance и свежего production delta.
 
-# What this case demonstrates
+## Что доказывает кейс
 
-- Nginx, PHP, MariaDB, WordPress, Docker Compose, and Linux operations.
-- Safe legacy migration, evidence capture, staging, rollback, and DNS cutover thinking.
-- Separation of content fidelity from technical debt.
-
+- Nginx, PHP, MariaDB, WordPress, Docker Compose и Linux operations.
+- Безопасную legacy migration, сбор evidence, staging, rollback и планирование DNS cutover.
+- Отделение content fidelity от технического долга старой платформы.
