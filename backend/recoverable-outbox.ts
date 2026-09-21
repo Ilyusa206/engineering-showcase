@@ -62,31 +62,40 @@ export async function acceptEvent(
 }
 
 export async function publishBatch(db: SqlClient, queue: Queue): Promise<number> {
-  const pending = await db.query<OutboxRow>(
-    `SELECT id, aggregate_id, event_type, payload
-       FROM queue_outbox
-      WHERE published_at IS NULL
-      ORDER BY created_at
-      LIMIT 100`,
-  );
-
-  let published = 0;
-  for (const item of pending.rows) {
-    const jobId = `outbox-${item.id}`;
-    await queue.add(item.event_type, item.payload, {
-      jobId,
-      attempts: 5,
-      backoff: { type: "exponential", delay: 1_000 },
-    });
-    await db.query(
-      `UPDATE queue_outbox
-          SET published_at = COALESCE(published_at, NOW())
-        WHERE id = $1`,
-      [item.id],
+  await db.query("BEGIN");
+  try {
+    const pending = await db.query<OutboxRow>(
+      `SELECT id, aggregate_id, event_type, payload
+         FROM queue_outbox
+        WHERE published_at IS NULL
+        ORDER BY created_at
+        FOR UPDATE SKIP LOCKED
+        LIMIT 100`,
     );
-    published += 1;
+
+    let published = 0;
+    for (const item of pending.rows) {
+      // Детерминированный jobId закрывает окно сбоя между queue.add и COMMIT.
+      const jobId = `outbox-${item.id}`;
+      await queue.add(item.event_type, item.payload, {
+        jobId,
+        attempts: 5,
+        backoff: { type: "exponential", delay: 1_000 },
+      });
+      await db.query(
+        `UPDATE queue_outbox
+            SET published_at = COALESCE(published_at, NOW())
+          WHERE id = $1`,
+        [item.id],
+      );
+      published += 1;
+    }
+    await db.query("COMMIT");
+    return published;
+  } catch (error) {
+    await db.query("ROLLBACK");
+    throw error;
   }
-  return published;
 }
 
 // После потери Redis сбрасываем published_at у jobs, которых нет в очереди

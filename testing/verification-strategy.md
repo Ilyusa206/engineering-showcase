@@ -9,8 +9,8 @@
 | Integration | Поведение database и adapters | migrations, row locks, payment verification, repository queries |
 | E2E | Видимый пользователю многокомпонентный сценарий | multi-user tenant isolation, browser CRM workflow |
 | Build | Воспроизводимый deployable artifact | backend/frontend images, Android export |
-| Runtime acceptance | Поведение в реальной среде | OIDC login, WebSocket path, background notification |
-| Recovery acceptance | Отказ и восстановление | восстановление Redis jobs, isolated VM restore |
+| Приёмка в runtime | Поведение в реальной среде | OIDC login, WebSocket path, background notification |
+| Проверка восстановления | Отказ и восстановление | восстановление Redis jobs, isolated VM restore |
 
 ## Наиболее ценные сценарии
 
@@ -20,7 +20,7 @@
 - Остановить worker при незавершённых jobs и проверить восстановление из PostgreSQL.
 - Проверить mobile network lifecycle, background/foreground, token refresh и socket reconnect как единый сценарий.
 - До production change проверить не только rollback command, но и критерии, при которых rollback обязателен.
-- Связать runtime acceptance с точным commit и checksum артефакта.
+- Связать приёмку в runtime с точным commit и checksum артефакта.
 
 ## Граница доказательств
 

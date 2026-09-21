@@ -4,15 +4,15 @@
 
 ## Задача
 
-Одно приложение должно было поддерживать личные, совместные и небольшие бизнес-финансы без ослабления tenant isolation и финансовой корректности. Последующий business domain добавил catalogue, locations, production, transfers, sales, write-offs, stock valuation и атомарную связь физической продажи с финансовым доходом.
+Одно приложение должно было поддерживать личные, совместные и небольшие бизнес-финансы без ослабления tenant isolation и финансовой корректности. Последующий бизнес-модуль добавил каталог, точки хранения, производство, перемещения, продажи, списания, оценку остатков и атомарную связь физической продажи с финансовым доходом.
 
 ## Ограничения
 
 - Денежные величины нельзя хранить в floating point.
-- Membership в одном space не должна давать доступ к другому.
-- Account balance и transaction history не могут расходиться.
-- Повтор mutation не должен дублировать ledger entry.
-- Stock — это проверяемый movement ledger, а не редактируемое число.
+- Membership в одном `space` не должна давать доступ к другому.
+- Баланс счёта и история операций не могут расходиться.
+- Повтор mutation не должен дублировать запись ledger.
+- Остаток — это результат проверяемого movement ledger, а не редактируемое число.
 - Mobile realtime не становится вторым источником истины.
 
 ## Архитектура и подход
@@ -33,10 +33,10 @@ flowchart TD
 
 ## Что я реализовал
 
-- Модели tenant, space, membership, invitation, account, transaction, planning, audit, export, inventory и production.
+- Модели tenant, `space`, membership, invitation, счетов, операций, планирования, аудита, export, inventory и production.
 - Централизованные permission checks для конкретного space на backend, без доверия route parameters и client state.
 - Хранение денег в integer minor units (`BIGINT`) и сериализацию строками через JSON boundary.
-- Создание transaction с validation, account deltas, splits, audit record и idempotency record в одной Prisma transaction.
+- Создание финансовой операции с validation, изменениями балансов, splits, audit record и idempotency record в одной Prisma transaction.
 - Inventory documents и immutable movements, включая lot-aware stock allocation и связь sale с income.
 - JWT access tokens, opaque refresh sessions, hashing/rotation tokens, hashing invitations и redaction structured logs.
 - Authenticated WebSocket events; mobile client инвалидирует TanStack Query cache и заново получает авторитетное состояние.
@@ -44,11 +44,11 @@ flowchart TD
 
 ## Ключевые инженерные решения
 
-1. **Space — самостоятельная permission boundary.** Верхнеуровневый family/tenant container не даёт доступ ко всем spaces: каждый request проверяет активную membership в точном scope.
-2. **Balance изменяется вместе с ledger.** Transaction row, splits, cached account deltas, audit и idempotency record фиксируются одной database transaction.
-3. **Stock выводится из movements.** Posted document создаёт signed immutable movements; draft не влияет на остатки.
-4. **Realtime передаёт invalidation, а не replacement state.** Event сообщает, что изменилось, после чего клиент выполняет authorized API query.
-5. **Одноразовый invitation обеспечивается атомарно.** Plaintext code возвращается один раз, хранится как hash, имеет срок действия и не допускает replay.
+1. **`Space` — самостоятельная permission boundary.** Верхнеуровневый family/tenant container не даёт доступа ко всем spaces: каждый request проверяет активную membership в точном scope.
+2. **Баланс изменяется вместе с ledger.** Строка операции, splits, изменения баланса, audit и idempotency record фиксируются одной database transaction.
+3. **Остаток выводится из movements.** Проведённый документ создаёт signed immutable movements; draft не влияет на остатки.
+4. **Realtime передаёт invalidation, а не готовое состояние.** Event сообщает, что изменилось, после чего клиент выполняет authorized API query.
+5. **Одноразовый invitation обеспечивается атомарно.** Код возвращается открытым текстом один раз, хранится как hash, имеет срок действия и не допускает replay.
 
 ## Надёжность, безопасность и тестирование
 

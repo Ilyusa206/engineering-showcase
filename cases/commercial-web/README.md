@@ -16,7 +16,7 @@
 
 ## Архитектура и подход
 
-Компоненты построены на scoped CSS, semantic HTML, небольших JavaScript state machines, data arrays и custom DOM events. Desktop- и mobile-представления используют общие logical identifiers, но разные controls.
+Компоненты построены на scoped CSS, semantic HTML, небольших JavaScript state machines, массивах данных и custom DOM events. Desktop- и mobile-представления используют общие логические идентификаторы, но разные controls.
 
 ## Что я реализовал
 
@@ -29,7 +29,7 @@
 
 ## Ключевые инженерные решения
 
-1. **Custom events ослабляют связь embedded blocks.** Навигация публикует domain event, а компонент специализаций реагирует без общих предположений о DOM.
+1. **Custom events ослабляют связь embedded blocks.** Навигация публикует событие выбора, а компонент специализаций реагирует без общих предположений о DOM.
 2. **Динамический контент экранируется.** Даже управляемые редактором строки проходят через escaping перед вставкой.
 3. **Mobile — отдельный interaction pattern, а не уменьшенный desktop.** На узком экране grid заменяется horizontal touch navigation и раскрывающимися списками.
 4. **Данные остаются декларативными.** Новое направление или специалист добавляется записью, без копирования markup и listeners.

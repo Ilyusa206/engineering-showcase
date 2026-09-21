@@ -2,7 +2,7 @@
 
 ## Кратко
 
-Несколько виртуальных машин перестали отвечать, хотя hypervisor по-прежнему показывал их как работающие, iSCSI session оставалась установленной, а storage pool — healthy. Сопоставление событий на разных слоях показало: storage target не мог выделить request buffers, возвращал backpressure/errors инициатору, после чего возникали длительные write timeouts и остановка guest I/O.
+Несколько виртуальных машин перестали отвечать, хотя hypervisor по-прежнему показывал их как работающие, iSCSI session оставалась установленной, а storage pool — healthy. Сопоставление событий на разных слоях показало: iSCSI target не мог выделить buffers для запросов, возвращал backpressure/errors инициатору, после чего возникали длительные write timeouts и остановка guest I/O.
 
 ## Цепочка влияния
 
@@ -18,22 +18,22 @@ flowchart TD
 ## Рассмотренные доказательства
 
 - timestamps I/O timeouts в kernel hypervisor;
-- ошибки allocation в target service и размеры requests;
+- ошибки выделения памяти в target service и размеры запросов;
 - состояние storage pool и controller logs;
-- switch counters, optics, link state, dropped/error frames;
+- counters коммутатора, состояние optics/link и dropped/error frames;
 - непрерывность iSCSI session;
-- kernel memory, slab, cache limits и доступный headroom;
+- kernel memory, slab, cache limits и доступный запас памяти;
 - сбои зависимых identity- и application-сервисов.
 
 ## Ход анализа
 
-Healthy pool исключал простую поломку filesystem/pool, но не подтверждал здоровье target service. Чистые counters физического линка уменьшали вероятность повреждения packets. Совпадение по времени ошибок allocation на target и timeouts на initiator установило непосредственный механизм отказа.
+Healthy pool исключал простую поломку filesystem/pool, но не подтверждал здоровье target service. Чистые counters физического линка уменьшали вероятность повреждения пакетов. Совпадение по времени ошибок allocation на target и timeouts на initiator установило непосредственный механизм отказа.
 
-Точную первичную причину kernel allocation ретроспективно доказать было нельзя: на момент начала incident не сохранился полный memory snapshot. Наиболее сильным подтверждённым фактором риска был автоматически рассчитанный filesystem cache, оставлявший слишком мало памяти для target service и kernel.
+Точную первичную причину kernel allocation ретроспективно доказать было нельзя: на момент начала incident не сохранился полный memory snapshot. Наиболее сильным подтверждённым фактором риска был автоматически рассчитанный filesystem cache, оставлявший слишком мало памяти target service и kernel.
 
 ## Корректирующее изменение
 
-Через поддерживаемый платформой механизм был установлен постоянный верхний cache limit, сохраняющий явный memory headroom. Одновременно не менялись target thread counts, swap, networking, firmware и storage layout — это сохранило причинную ясность и возможность rollback.
+Через поддерживаемый платформой механизм был установлен постоянный верхний cache limit, сохраняющий явный запас памяти. Одновременно не менялись число потоков target, swap, networking, firmware и storage layout — это сохранило причинную ясность и возможность rollback.
 
 ## Проверка результата
 
