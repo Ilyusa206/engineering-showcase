@@ -33,7 +33,9 @@
 - обязательную структуру каждого кейса;
 - синтаксис и загрузку TypeScript-примеров;
 - наличие маркировки реконструкции у публикуемых samples;
-- private IP, внутренние hostname suffixes, распространённые credential signatures и JWT/Bearer-подобные значения;
+- private IP, внутренние hostname suffixes, email addresses, URL вне публичного allowlist, распространённые credential signatures и JWT/Bearer-подобные значения;
 - отсутствие потенциально опасных типов файлов: `.env`, private keys, archives, dumps и backups.
+
+Для `examples/reference-service` scanner также читает SQL, Dockerfile, fixtures и test source. Значения PostgreSQL в Compose — фиксированные credentials одноразового локального стенда; они не используются ни в одной внешней среде.
 
 Автоматическая проверка — дополнительный барьер, а не замена ручного review. Если чувствительная информация обнаружена после публикации, недостаточно удалить её из текущего дерева: необходимо оценить всю Git history и при необходимости отозвать скомпрометированные credentials.

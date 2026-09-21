@@ -3,8 +3,8 @@ import { basename, dirname, extname, join, normalize, relative, resolve } from "
 import { spawnSync } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
-const ignored = new Set([".git", "node_modules"]);
-const textExtensions = new Set([".md", ".ts", ".mjs", ".yml", ".yaml", ".conf", ".json"]);
+const ignored = new Set([".git", "node_modules", "dist"]);
+const textExtensions = new Set([".md", ".ts", ".mjs", ".sql", ".yml", ".yaml", ".conf", ".json"]);
 const allFiles = [];
 
 function walk(directory) {
@@ -18,7 +18,8 @@ function walk(directory) {
 
 walk(root);
 const textFiles = allFiles.filter(
-  (file) => textExtensions.has(extname(file)) || basename(file) === "README.md",
+  (file) =>
+    textExtensions.has(extname(file)) || basename(file) === "README.md" || basename(file) === "Dockerfile",
 );
 const failures = [];
 
@@ -27,6 +28,9 @@ const privateAddressPatterns = [
   /\b(?:fc|fd)[0-9a-f]{2}(?::[0-9a-f]{0,4}){2,7}\b/gi,
 ];
 const internalHostname = /\b[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?\.(?:local|internal|lan|corp)\b/gi;
+const emailAddress = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+const publicUrl = /https?:\/\/([a-z0-9.-]+)/gi;
+const allowedUrlHosts = new Set(["127.0.0.1", "api", "github.com", "localhost", "web"]);
 const credentialSignatures = [
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
   /\b(?:ghp|gho|ghu|ghs|github_pat)_[A-Za-z0-9_]{20,}\b/,
@@ -59,11 +63,29 @@ for (const file of textFiles) {
   }
   const hostnames = [...content.matchAll(internalHostname)].map((match) => match[0]);
   if (hostnames.length) failures.push(`${display}: обнаружен internal hostname: ${hostnames.join(", ")}`);
+  const emails = [...content.matchAll(emailAddress)].map((match) => match[0]);
+  if (emails.length) failures.push(`${display}: обнаружен email address: ${emails.join(", ")}`);
+  if (basename(file) !== "package-lock.json") {
+    const unknownHosts = [...content.matchAll(publicUrl)]
+      .map((match) => match[1])
+      .filter((hostname) => !allowedUrlHosts.has(hostname));
+    if (unknownHosts.length) {
+      failures.push(`${display}: обнаружен URL вне allowlist: ${[...new Set(unknownHosts)].join(", ")}`);
+    }
+  }
   for (const signature of credentialSignatures) {
     if (signature.test(content)) failures.push(`${display}: возможная credential signature`);
   }
 
   if (extname(file) !== ".md") continue;
+  const mermaidOpenings = [...content.matchAll(/^```mermaid\s*$/gm)];
+  for (const opening of mermaidOpenings) {
+    const remaining = content.slice((opening.index ?? 0) + opening[0].length);
+    const closing = remaining.match(/^```\s*$/m);
+    if (!closing || !remaining.slice(0, closing.index).trim()) {
+      failures.push(`${display}: пустой или незакрытый Mermaid block`);
+    }
+  }
   for (const match of content.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
     const target = match[1].split("#")[0];
     if (!target || /^(?:https?:|mailto:)/.test(target)) continue;
@@ -117,7 +139,24 @@ for (const file of sampleFiles) {
   }
 }
 
-for (const file of textFiles.filter((item) => extname(item) === ".ts")) {
+const integratedMarker = "Санитизированная реконструкция на основе реализованных систем.";
+const integratedSources = allFiles.filter((file) => {
+  const display = relative(root, file);
+  return (
+    display.startsWith("examples/reference-service/") &&
+    ([".ts", ".sql", ".yaml"].includes(extname(file)) || basename(file) === "Dockerfile")
+  );
+});
+for (const file of integratedSources) {
+  if (!readFileSync(file, "utf8").includes(integratedMarker)) {
+    failures.push(`${relative(root, file)}: отсутствует маркировка standalone-реконструкции`);
+  }
+}
+
+for (const file of textFiles.filter((item) => {
+  const display = relative(root, item);
+  return extname(item) === ".ts" && !display.startsWith("examples/reference-service/");
+})) {
   const result = spawnSync(process.execPath, ["--experimental-transform-types", file], {
     encoding: "utf8",
     env: { ...process.env, NODE_NO_WARNINGS: "1" },
@@ -134,6 +173,6 @@ if (failures.length) {
 
 const typeScriptCount = textFiles.filter((item) => extname(item) === ".ts").length;
 console.log(
-  `Проверено файлов: ${allFiles.length}; текстовых: ${textFiles.length}; TypeScript samples: ${typeScriptCount}. ` +
-    "Ссылки, структура кейсов, маркировка реконструкций, синтаксис и security patterns корректны.",
+  `Проверено файлов: ${allFiles.length}; текстовых: ${textFiles.length}; TypeScript files: ${typeScriptCount}. ` +
+    "Ссылки, Mermaid blocks, структура кейсов, маркировка реконструкций и security patterns корректны.",
 );
