@@ -38,4 +38,6 @@
 
 Для `examples/reference-service` scanner также читает SQL, Dockerfile, fixtures и test source. Значения PostgreSQL в Compose — фиксированные credentials одноразового локального стенда; они не используются ни в одной внешней среде.
 
+CI отдельно выполняет `npm audit --omit=dev --audit-level=high` для runtime dependencies standalone demo. Это не заменяет dependency review, но блокирует публикацию известных high/critical advisories в исполняемом примере.
+
 Автоматическая проверка — дополнительный барьер, а не замена ручного review. Если чувствительная информация обнаружена после публикации, недостаточно удалить её из текущего дерева: необходимо оценить всю Git history и при необходимости отозвать скомпрометированные credentials.
